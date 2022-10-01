@@ -1,2 +1,1 @@
-# fams
-Functionally Aware Model Stylization
+# Functionally Aware Model Stylization
