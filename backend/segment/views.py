@@ -2,6 +2,8 @@
 segment views
 """
 import os
+import sys
+import json
 import pymeshlab
 import numpy as np
 import scipy.sparse.linalg
@@ -12,6 +14,8 @@ from utils.view_helpers import _is_subset
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .segment_utils.mesh_graph import MeshGraph
+from .segment_utils.view_helpers import _remesh
+sys.setrecursionlimit(10000)
 
 @api_view(['POST'])
 def segment(request, *args, **kwargs):
@@ -26,25 +30,29 @@ def segment(request, *args, **kwargs):
         :returns: <np.ndarray> Labels of size m x 1; m = len(mesh.vertex_matrix) where Labels[i] = label of vertex i ∈ [1, k]
     """
     data = {}
+    request = json.loads(request.data)
     segment_fields = ["vertices", "faces", "k", "collapsed"]
     segment_status   = _is_subset(segment_fields, request.keys())
     
     if segment_status == status.HTTP_200_OK:
         # Step 0 (Initialization of variables)
-        k = request.data['k']
-        collapsed = request.data['collapsed']
-        faces = np.array(request.data['faces'])
-        vertices = np.array(request.data['vertices'])
+        k = request['k']
+        collapsed = request['collapsed']
+        faces = np.array(request['faces'])
+        vertices = np.array(request['vertices'])
         
         mesh = pymeshlab.Mesh(vertices, faces)
-        labels = segment(mesh, k, collapsed = collapsed)
+        # mesh = _remesh(mesh)
+        labels = segment_mesh(mesh, k, collapsed = collapsed)
 
         data['face_segments'] = labels
+        data['faces'] = list(mesh.face_matrix())
+        data['vertices'] = list(mesh.vertex_matrix())
         data['labels'] = ["function", "function", "form", "function", "function", "form", "function", "form", "form", "function", "form", "function"]
-
+        
     return Response(data = data, status = segment_status)
 
-def segment(mesh, k, collapsed = True):
+def segment_mesh(mesh, k, collapsed = True):
     """
     Segments a mesh as follows:
         1. Converts mesh into a face graph, where 
@@ -80,7 +88,7 @@ def segment(mesh, k, collapsed = True):
     mesh_graph = MeshGraph(mesh)
 
     # Step 2
-    similarity_matrix = mesh_graph.similarity_matrix()
+    similarity_matrix = mesh_graph.similarity_matrix(collapsed = collapsed)
 
     # Step 3
     sqrt_degree = np.sqrt(mesh_graph.collapsed_degree_matrix) if collapsed else np.sqrt(mesh_graph.degree_matrix)
@@ -109,7 +117,7 @@ def _unwrap_labels(mesh_graph, labels):
     Outputs 
         :returns: <list> where the ith element is the label corresponding to the ith face
     """
-    n = mesh_graph.collapsed_map.shape[0]
+    n = len(mesh_graph.collapsed_map)
     
     unwrapped_labels = np.zeros(n)
     reverse_map = {}
