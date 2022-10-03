@@ -43,28 +43,47 @@ class Segment_OT_Op(bpy.types.Operator):
         else:
             k = 12
             obj = context.view_layer.objects.active
-            selected_mesh = context.scene.selected_mesh
-            
+
             vertices = []
             for vertex in obj.data.vertices: vertices.append(vertex.co[:])
 
             faces = []
-            for face in obj.data.polygons: faces.append([i for i in face])
+            for face in obj.data.polygons: faces.append([i for i in face.vertices])
 
-            url = "http://0.0.0.0:8000/imad/segment"
+            url = "http://0.0.0.0:8000/segment/"
             
             data = json.dumps({'vertices': vertices, 'faces': faces, 'k': k, 'collapsed': True})
 
             try:
                 response = requests.post(url = url, json = data).json()
                 
+                faces = response['faces']
                 labels = response['labels']
+                vertices = response['vertices']
                 face_segments = response['face_segments']
-
                 self.report({'INFO'}, f"Segmented mesh into {k} parts successfully!")
-                _assign_materials(obj, k, face_segments, context, labels)
+                
+                mesh_name = obj.name
+                # Remove old mesh   
+                bpy.ops.object.select_all(action='DESELECT')
+                bpy.data.objects[mesh_name].select_set(True)
+                bpy.ops.object.delete()
+                self.report({'INFO'}, f"Removed old mesh {mesh_name} ...")
 
-            except Exception as error: raise error; print(f"Error occured while segmenting mesh\n{report(error)}")
+                # Add new mesh
+                new_mesh = bpy.data.meshes.new(mesh_name)
+                new_mesh.from_pydata(vertices, [], faces)
+                new_mesh.update()
+
+                new_object = bpy.data.objects.new(mesh_name, new_mesh)
+                bpy.context.scene.collection.objects.link(new_object)
+                bpy.context.view_layer.objects.active = new_object
+
+                self.report({'INFO'}, f"Added new mesh {mesh_name} ...")
+
+                _assign_materials(new_object, k, face_segments, context, labels)
+
+            except Exception as error: print(f"Error occured while segmenting mesh\n{report(error)}")
             
             return {'FINISHED'}
 
@@ -77,7 +96,6 @@ def _assign_materials(mesh, k, face_segments, context, labels):
     segemnt_to_faces = {i: [] for i in range(m)}
     
     for i in range(n): segemnt_to_faces[face_segments[i]].append(i)
-    print(f"I found {m} labels!")
 
     for i in range(k):
         material = bpy.data.materials.new(''.join(['mat', mesh.name, str(i)]))

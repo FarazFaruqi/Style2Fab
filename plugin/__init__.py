@@ -1,5 +1,5 @@
 bl_info = {
-    "name" : "Functionallly Aware Manifold Stylization",
+    "name" : "fa3ds",
     "author" : "Ahmed Katary",
     "description" : "",
     "blender" : (2, 80, 0),
@@ -12,7 +12,7 @@ bl_info = {
 import bpy 
 from .panel import FA3DS_PT_Panel
 from .operators.segment import Segment_OT_Op
-from .operators.upload_mesh import UploadMesh_OT_Op
+from .operators.select_segment import SelectSegment_OT_Op
 from bpy.props import StringProperty, CollectionProperty, BoolProperty, IntProperty
 
 class CustomPropertiesGroup(bpy.types.PropertyGroup):
@@ -22,7 +22,7 @@ class CustomPropertiesGroup(bpy.types.PropertyGroup):
     color: StringProperty()
     selected: BoolProperty(default = False)
 
-classes = (UploadMesh_OT_Op, Segment_OT_Op, CustomPropertiesGroup, FA3DS_PT_Panel)
+classes = (SelectSegment_OT_Op, Segment_OT_Op, CustomPropertiesGroup, FA3DS_PT_Panel)
 props = {
     'prompt': StringProperty(
         name = "", 
