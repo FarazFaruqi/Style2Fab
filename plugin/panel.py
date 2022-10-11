@@ -23,7 +23,7 @@ class FA3DS_PT_Panel(Panel):
 
         # layout.separator()
 
-        layout.label(text="Segment")
+        # layout.label(text="Segmentation")
         
         layout.operator("mesh.segment_mesh", icon = "PLUGIN")
 
@@ -38,3 +38,15 @@ class FA3DS_PT_Panel(Panel):
                         segment_col.prop(segment, "selected", text=f"Part {i} - {segment.color}")
 
             layout.operator("mesh.select_segment", icon = "CHECKMARK")
+        
+        layout.separator()
+        # layout.label(text="Stylization")
+
+        layout.label(text="Prompt")
+        prompt_col = layout.column()
+        prompt_row = prompt_col.row()
+        prompt_row.prop(context.scene, "prompt")
+
+        stylize_row = layout.row()
+        stylize_col = stylize_row.column()
+        stylize_col.operator("mesh.stylize_mesh", icon = "PLUGIN")

@@ -12,6 +12,7 @@ bl_info = {
 import bpy 
 from .panel import FA3DS_PT_Panel
 from .operators.segment import Segment_OT_Op
+from .operators.stylize import Stylize_OT_Op
 from .operators.select_segment import SelectSegment_OT_Op
 from bpy.props import StringProperty, CollectionProperty, BoolProperty, IntProperty
 
@@ -22,7 +23,7 @@ class CustomPropertiesGroup(bpy.types.PropertyGroup):
     color: StringProperty()
     selected: BoolProperty(default = False)
 
-classes = (SelectSegment_OT_Op, Segment_OT_Op, CustomPropertiesGroup, FA3DS_PT_Panel)
+classes = (Stylize_OT_Op, SelectSegment_OT_Op, Segment_OT_Op, CustomPropertiesGroup, FA3DS_PT_Panel)
 props = {
     'prompt': StringProperty(
         name = "", 

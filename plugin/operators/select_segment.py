@@ -15,8 +15,7 @@ class SelectSegment_OT_Op(bpy.types.Operator):
     def poll(cls, context):
         """ Indicates weather the operator should be enabled """
         obj = context.object
-        if obj is not None:
-            return True
+        if obj is not None: return True
         print("Failed to get model because no object is selected")
         return False
 
