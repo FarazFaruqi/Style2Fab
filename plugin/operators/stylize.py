@@ -34,8 +34,8 @@ class Stylize_OT_Op(bpy.types.Operator):
 
         selection = []
         mesh = bmesh.from_edit_mesh(obj.data)
-        for vertex in mesh.verts:
-            if vertex.select: selection.append(vertex.id)
+        for i, vertex in enumerate(mesh.verts):
+            if vertex.select: selection.append(i)
 
         url = "http://0.0.0.0:8000/stylize/"
         
