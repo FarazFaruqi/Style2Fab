@@ -19,7 +19,9 @@ def _export_final(final_dir, mesh, losses, i):
         :i: <int> number of current stylization iteration
     """
     with torch.no_grad():
-        mesh_name, ext = os.path.splitext(os.path.basename(mesh.path))
+        if isinstance(mesh.path, str): mesh_name, ext = os.path.splitext(os.path.basename(mesh.path))
+        else: mesh_name, ext = "mesh", "obj"
+        
         mesh.export(os.path.join(final_dir, f"{mesh_name}_{i}_iters.obj"), True)
 
         torch.save(torch.tensor(losses), os.path.join(final_dir, "losses.pt"))

@@ -15,11 +15,12 @@ args = {
     'crop_decay': 1.0,
     'split_norm_loss': True,
     'symmetry': True,
-    'output_dir': "round2/alpha5",
+    'output_dir': "results",
     'obj_path': "meshes/mesh1.obj",
     'standardize': True,
     'verticies_in_file': True,
     'selected_vertices': "vertices.txt",
+    'mesh_type': "obj",
 
     'norm_prompt_list': None,
     'train_type': "shared",

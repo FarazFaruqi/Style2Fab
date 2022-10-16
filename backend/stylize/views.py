@@ -5,16 +5,17 @@ import json
 import clip
 import pymeshlab
 import numpy as np
-from x2mesh.args import args
 from rest_framework import status
 from django.shortcuts import render
 from utils.view_helpers import _is_subset
 from rest_framework.response import Response
-from x2mesh.implementation.main import x2mesh
-from x2mesh.implementation.utils import device
+from .x2mesh.args import args as x2mesh_args
+from .x2mesh.implementation.main import x2mesh
+from .x2mesh.implementation.utils import device
 from rest_framework.decorators import api_view
 
 ### Global Constants ###
+print("Loading CLIP ...")
 clip_model, preprocess = clip.load('ViT-B/32', device, jit=False)
 
 @api_view(['POST'])
@@ -35,11 +36,17 @@ def stylize(request, *args, **kwargs):
     stylize_status   = _is_subset(stylize_fields, request.keys())
     
     if stylize_status == status.HTTP_200_OK:
+        prompt = request['prompt']
+        selection = request['selection']
         faces = np.array(request['faces'])
         vertices = np.array(request['vertices'])
 
-        args['obj_path'] = pymeshlab.Mesh(vertices, faces)
-        mesh = x2mesh(args, clip_model, preprocess)
+        x2mesh_args['mesh_type'] = None
+        x2mesh_args['prompt'] = prompt
+        x2mesh_args['verticies_in_file'] = False
+        x2mesh_args['selected_vertices'] = selection
+        x2mesh_args['obj_path'] = pymeshlab.Mesh(vertices, faces)
+        mesh = x2mesh(x2mesh_args, clip_model, preprocess)
         
         materials = np.ones(mesh.faces.shape)
         

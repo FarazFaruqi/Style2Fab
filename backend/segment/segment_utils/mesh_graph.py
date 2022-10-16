@@ -151,16 +151,20 @@ class MeshGraph():
     
     def __construct_collapsed_adj_matrix(self):
         """ Construct the m x m adjacency matrix """
-        print("------ Computing face graph adjacency matrix ... ------")
+        print("------ Computing collapsed face graph adjacency matrix ... ------")
         self.collapsed_adj_matrix = self.__collapsed_weights(delta = 0.03)
 
     def __weights(self, delta = 0.03):
         """ Compute the weights matrix where weight of face_1 --- face_2 = δ * (geodisc(fi, fj)) / avg_geodisc + (1 - δ) * (ang_dist(fi, fj)) / avg_ang_dist"""
-        return delta * self.geodisc / self.avg_geodisc + (1 - delta) * self.ang_dist / self.avg_ang_dist
+        self.geodisc *= delta / self.avg_geodisc
+        self.geodisc += (1 - delta) * self.ang_dist / self.avg_ang_dist
+        return self.geodisc
 
     def __collapsed_weights(self, delta = 0.03):
         """ Compute the weights matrix where weight of face_1 --- face_2 = δ * (geodisc(fi, fj)) / avg_geodisc + (1 - δ) * (ang_dist(fi, fj)) / avg_ang_dist"""
-        return delta * self.collapsed_geodisc / self.avg_collapsed_geodisc + (1 - delta) * self.collapsed_ang_dist / self.avg_collapsed_ang_dist
+        self.collapsed_geodisc *= delta / self.avg_collapsed_geodisc
+        self.collapsed_geodisc += (1 - delta) * self.collapsed_ang_dist / self.avg_collapsed_ang_dist
+        return self.collapsed_geodisc
 
     def __geodisc(self, face_1, face_2, edge):
         """ Computes the geodistance between the centers of face_1 and face_2 over the edge"""

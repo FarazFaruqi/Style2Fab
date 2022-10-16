@@ -25,9 +25,10 @@ def _initiate(clip_model, preprocess, args):
     __constrain_randomness(args)
     output_dir = args['output_dir']
 
-    mesh = Mesh(mesh_path)
+    mesh = Mesh(mesh_path, mesh_type = args['mesh_type'])
     Path(args['output_dir']).mkdir(parents=True, exist_ok=True)
-    mesh_name, extension = os.path.splitext(os.path.basename(mesh_path))
+    if args['mesh_type']: mesh_name, extension = os.path.splitext(os.path.basename(mesh_path))
+    else: mesh_name, extension = "mesh", "obj"
     
     final_dir = os.path.join(output_dir, f"{mesh_name}_final_style")
     iters_dir = os.path.join(output_dir, f"{mesh_name}_iters_style")

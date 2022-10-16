@@ -38,7 +38,7 @@ def x2mesh(args, clip_model, preprocess):
     rendered_images = None
     mesh, nsf, results_path, encodings, crop_cur, crop_update = _initiate(clip_model, preprocess, args)
 
-    vertex_mask = _construct_mask(args['vertices_to_not_change'], mesh, args['verticies_in_file'])
+    vertex_mask = _construct_mask(args['selected_vertices'], mesh, args['verticies_in_file'])
 
     renderer = Renderer(mesh)
     optimizer = torch.optim.Adam(nsf.parameters(), args['lr'], weight_decay=args['decay'])
