@@ -1,3 +1,4 @@
+from pickle import TRUE
 import bpy
 import json
 import bmesh
@@ -42,53 +43,62 @@ class Segment_OT_Op(bpy.types.Operator):
             return {'CANCELLED'}
         else:
             k = 12
-            obj = context.view_layer.objects.active
+            objs = [obj for obj in bpy.context.selected_objects]
+            for obj in objs:
+                vertices = []
+                for vertex in obj.data.vertices: vertices.append(vertex.co[:])
 
-            vertices = []
-            for vertex in obj.data.vertices: vertices.append(vertex.co[:])
+                faces = []
+                for face in obj.data.polygons: faces.append([i for i in face.vertices])
 
-            faces = []
-            for face in obj.data.polygons: faces.append([i for i in face.vertices])
-
-            url = "http://0.0.0.0:8000/segment/"
-            
-            data = json.dumps({'vertices': vertices, 'faces': faces, 'k': k, 'collapsed': True})
-
-            try:
-                response = requests.post(url = url, json = data).json()
+                url = "http://0.0.0.0:8000/segment/"
                 
-                faces = response['faces']
-                labels = response['labels']
-                vertices = response['vertices']
-                face_segments = response['face_segments']
-                self.report({'INFO'}, f"Segmented mesh into {k} parts successfully!")
+                data = json.dumps({'vertices': vertices, 'faces': faces, 'k': k, 'collapsed': True})
+
+                try:
+                    response = requests.post(url = url, json = data).json()
+                    
+                    faces = response['faces']
+                    labels = response['labels']
+                    vertices = response['vertices']
+                    face_segments = response['face_segments']
+                    self.report({'INFO'}, f"Segmented mesh into {k} parts successfully!")
+                    
+                    mesh_name = obj.name
+                    # Remove old mesh   
+                    bpy.ops.object.select_all(action='DESELECT')
+                    bpy.data.objects[mesh_name].select_set(True)
+                    bpy.ops.object.delete()
+                    self.report({'INFO'}, f"Removed old mesh {mesh_name} ...")
+
+                    # Add new mesh
+                    new_mesh = bpy.data.meshes.new(mesh_name)
+                    new_mesh.from_pydata(vertices, [], faces)
+                    new_mesh.update()
+
+                    new_object = bpy.data.objects.new(mesh_name, new_mesh)
+                    bpy.context.scene.collection.objects.link(new_object)
+                    bpy.context.view_layer.objects.active = new_object
+
+                    self.report({'INFO'}, f"Added new mesh {mesh_name} ...")
+
+                    for stored_models in context.scene.models: 
+                        if stored_models.name == mesh_name: 
+                            model = stored_models
+                            break
+                    else: 
+                        model = context.scene.models.add()
+                        model.name = mesh_name.lower()
+                    model.segmented = True
+
+                    _assign_materials(new_object, k, face_segments, context, labels, model)
+
+                except Exception as error: print(f"Error occured while segmenting mesh\n{report(error)}")
                 
-                mesh_name = obj.name
-                # Remove old mesh   
-                bpy.ops.object.select_all(action='DESELECT')
-                bpy.data.objects[mesh_name].select_set(True)
-                bpy.ops.object.delete()
-                self.report({'INFO'}, f"Removed old mesh {mesh_name} ...")
-
-                # Add new mesh
-                new_mesh = bpy.data.meshes.new(mesh_name)
-                new_mesh.from_pydata(vertices, [], faces)
-                new_mesh.update()
-
-                new_object = bpy.data.objects.new(mesh_name, new_mesh)
-                bpy.context.scene.collection.objects.link(new_object)
-                bpy.context.view_layer.objects.active = new_object
-
-                self.report({'INFO'}, f"Added new mesh {mesh_name} ...")
-
-                _assign_materials(new_object, k, face_segments, context, labels)
-
-            except Exception as error: print(f"Error occured while segmenting mesh\n{report(error)}")
-            
             return {'FINISHED'}
 
 ### Helper Functions ###
-def _assign_materials(mesh, k, face_segments, context, labels):
+def _assign_materials(mesh, k, face_segments, context, labels, model):
     """ Assigns a colored material for each found segment """
     n = len(face_segments)
     m = len(set(face_segments))
@@ -102,8 +112,8 @@ def _assign_materials(mesh, k, face_segments, context, labels):
         material.diffuse_color = colors[i][1]
         mesh.data.materials.append(material)
 
-        if len(context.scene.segments) <= i: segment = context.scene.segments.add()
-        else: segment = context.scene.segments[i]
+        if len(model.segments) <= i: segment = model.segments.add()
+        else: segment = model.segments[i]
 
         segment.i = i
         segment.label = labels[i]

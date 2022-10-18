@@ -2,6 +2,8 @@ import bpy
 from bpy.types import Panel
 from bpy.props import BoolProperty
 
+### Global Constants ###
+
 class FA3DS_PT_Panel(Panel):
     """
     AF() = a panel for SmartStyle3D
@@ -27,18 +29,29 @@ class FA3DS_PT_Panel(Panel):
         
         layout.operator("mesh.segment_mesh", icon = "PLUGIN")
 
-        if len(context.scene.segments) > 0:
-            for label in ["Function", "Form"]:
-                layout.label(text=f"{label} Components", icon="TRIA_DOWN")
-                for i in range(len(context.scene.segments)):
-                    segment = context.scene.segments[i]
-                    if segment.label == label.lower():
-                        segment_row = layout.row()
-                        segment_col = segment_row.column()
-                        segment_col.prop(segment, "selected", text=f"Part {i} - {segment.color}")
+        if len(context.scene.models) > 0:
+            for model in context.scene.models:
+                if not model.segmented: continue
+                layout.label(text=f"{model.name.capitalize()}")
+                
+                for label in ["Function", "Form"]:
+                    if not model.show_form and label == "Form": 
+                        layout.operator(f"mesh.show_mesh_info_form", text=f"{label} Components", icon="TRIA_DOWN")
+                        continue
+                    if not model.show_function and label == "Function": 
+                        layout.operator(f"mesh.show_mesh_info_function", text=f"{label} Components", icon="TRIA_DOWN")
+                        continue
+                    layout.operator(f"mesh.show_mesh_info_{label.lower()}", text=f"{label} Components", icon="TRIA_UP")
 
+                    for i in range(len(model.segments)):
+                        segment = model.segments[i]
+                        if segment.label == label.lower():
+                            segment_row = layout.row()
+                            segment_col = segment_row.column()
+                            segment_col.prop(segment, "selected", text=f"Part {i} - {segment.color}")
+                layout.separator()
+                
             layout.operator("mesh.select_segment", icon = "CHECKMARK")
-        
         layout.separator()
         # layout.label(text="Stylization")
 

@@ -14,8 +14,8 @@ class SelectSegment_OT_Op(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         """ Indicates weather the operator should be enabled """
-        obj = context.object
-        if obj is not None: return True
+        objs = context.selected_objects
+        if len(objs) == 1: return True
         print("Failed to get model because no object is selected")
         return False
 
@@ -30,15 +30,18 @@ class SelectSegment_OT_Op(bpy.types.Operator):
         for vertex in mesh.verts:
             vertex.select = False
 
-        for segment in context.scene.segments:
-            if not segment.selected: continue
-            faces = list(map(int, segment.faces.split("\n")))
-            
-            self.report({'INFO'}, f"{faces}")
-            self.report({'INFO'}, f"[{segment.i} selected] >> {segment.selected}")
-            for i in faces:
-                for vertex in obj.data.polygons[i].vertices:
-                    selected_vertices.append(vertex)
+        for model in context.scene.models:
+            if model.name != obj.name.lower(): continue
+            if not model.segmented: continue
+            for segment in model.segments:
+                if not segment.selected: continue
+                faces = list(map(int, segment.faces.split("\n")))
+                
+                self.report({'INFO'}, f"{faces}")
+                self.report({'INFO'}, f"[{segment.i} selected] >> {segment.selected}")
+                for i in faces:
+                    for vertex in obj.data.polygons[i].vertices:
+                        selected_vertices.append(vertex)
         
         # select selected segment
         self._select(context, selected_vertices)

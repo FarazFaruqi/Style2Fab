@@ -15,23 +15,32 @@ from .operators.segment import Segment_OT_Op
 from .operators.stylize import Stylize_OT_Op
 from .operators.select_segment import SelectSegment_OT_Op
 from bpy.props import StringProperty, CollectionProperty, BoolProperty, IntProperty
+from .operators.show_mesh_info import ShowModelInfoFunction_OT_Op, ShowModelInfoForm_OT_Op
 
-class CustomPropertiesGroup(bpy.types.PropertyGroup):
+class Segments(bpy.types.PropertyGroup):
     i: IntProperty()
     label: StringProperty()
     faces: StringProperty()
     color: StringProperty()
     selected: BoolProperty(default = False)
 
-classes = (Stylize_OT_Op, SelectSegment_OT_Op, Segment_OT_Op, CustomPropertiesGroup, FA3DS_PT_Panel)
+class Model(bpy.types.PropertyGroup):
+    name: StringProperty()
+    show_form: BoolProperty(default = True)
+    stylized: BoolProperty(default = False)
+    segmented: BoolProperty(default = False)
+    show_function: BoolProperty(default = True)
+    segments: CollectionProperty(type = Segments)
+
+classes = (Stylize_OT_Op, SelectSegment_OT_Op, Segment_OT_Op, ShowModelInfoForm_OT_Op, ShowModelInfoFunction_OT_Op, Segments, FA3DS_PT_Panel, Model)
 props = {
     'prompt': StringProperty(
         name = "", 
         default = 'A vase made of wood'
     ),
 
-    'segments': CollectionProperty(
-        type = CustomPropertiesGroup
+    'models': CollectionProperty(
+        type = Model
     )
 }
 
