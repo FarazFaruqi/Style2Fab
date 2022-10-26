@@ -53,7 +53,7 @@ class Segment_OT_Op(bpy.types.Operator):
 
                 url = "http://0.0.0.0:8000/segment/"
                 
-                data = json.dumps({'vertices': vertices, 'faces': faces, 'k': k, 'collapsed': True})
+                data = json.dumps({'vertices': vertices, 'faces': faces, 'k': k, 'collapsed': True, 'remesh': False})
 
                 try:
                     response = requests.post(url = url, json = data).json()
@@ -83,7 +83,7 @@ class Segment_OT_Op(bpy.types.Operator):
                     self.report({'INFO'}, f"Added new mesh {mesh_name} ...")
 
                     for stored_models in context.scene.models: 
-                        if stored_models.name == mesh_name: 
+                        if stored_models.name == mesh_name.lower(): 
                             model = stored_models
                             break
                     else: 

@@ -39,7 +39,7 @@ class Stylize_OT_Op(bpy.types.Operator):
 
         url = "http://0.0.0.0:8000/stylize/"
         
-        data = json.dumps({'vertices': vertices, 'faces': faces, 'prompt': prompt, 'selection': selection})
+        data = json.dumps({'vertices': vertices, 'faces': faces, 'prompt': prompt, 'selection': selection, 'remesh': False})
         
         try:
             response = requests.post(url = url, json = data).json()
@@ -63,7 +63,7 @@ class Stylize_OT_Op(bpy.types.Operator):
 
             bpy.ops.object.mode_set(mode='OBJECT')
 
-        except Exception as error: print(f"Error occured while stylizing mesh\n{report(error)}")
+        except Exception as error: self.report({'WARNING'}, f"Error occured while stylizing mesh\n{report(error)}")
         
         return {'FINISHED'}
 
