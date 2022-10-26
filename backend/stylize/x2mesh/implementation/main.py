@@ -4,6 +4,8 @@ from tqdm import tqdm
 from copy import deepcopy
 from .utils import device
 from .render import Renderer
+from .normalizer import MeshNormalizer
+from torchvision.utils import save_image
 from torchvision import transforms
 from .helpers.x2mesh_helpers import (
     _initiate,
@@ -31,12 +33,13 @@ def x2mesh(args, clip_model, preprocess):
     Outputs
         :returns: <Mesh> the stylized mesh
     """
-    loss, losses = 0, []
+    loss, losses = 0.0, []
     norm_loss, norm_losses = 0.0, []
 
     norm_weight = 1.0
     rendered_images = None
     mesh, nsf, results_path, encodings, crop_cur, crop_update = _initiate(clip_model, preprocess, args)
+    MeshNormalizer(mesh)
 
     vertex_mask = _construct_mask(args['selected_vertices'], mesh, args['verticies_in_file'])
 
@@ -56,13 +59,26 @@ def x2mesh(args, clip_model, preprocess):
     for i in tqdm(range(args['n_iter'])):
         optimizer.zero_grad()
         _update_mesh(nsf, mesh, network_input, vertex_mask, vertices)
-        rendered_images, _, _ = test(nsf, mesh, renderer, encodings, clip_model, optimizer, (loss, norm_loss), norm_weight, crop_update, args, i)
+        rendered_images, new_loss, new_norm_loss = test(nsf, mesh, renderer, encodings, clip_model, optimizer, (loss, norm_loss), norm_weight, crop_update, args, i)
         
+        save_image(rendered_images, f"{args['output_dir']}/monitor.png")
+
+        if isinstance(loss, torch.Tensor): loss = loss.item()
+        loss = torch.Tensor(loss + new_loss.item())
+        if isinstance(loss, torch.Tensor): norm_loss = norm_loss.item()
+        norm_loss = torch.Tensor(norm_loss + new_norm_loss.item())
+        
+        losses.append(loss.item())
+        norm_losses.append(norm_loss.item())
+
         if activate_scheduler: lr_scheduler.step()
         if args['decay_freq'] is not None and i % args['decay_freq'] == 0: norm_weight *= args['crop_decay']
 
-        if i % 100 == 0: _report(mesh, args['n_views'], results_path, losses, i)
-    _report(mesh, args['n_views'], results_path, losses, i)
+        if i % 100 == 0: 
+            # _report(mesh, args['n_views'], results_path, losses, i)
+            print(f"\nLoss: {losses[i]}\tNorm Loss: {norm_losses[i]}")
+    # _report(mesh, args['n_views'], results_path, losses, i)
+    _report(mesh, args['n_views'], (args['output_dir'], args['output_dir']), losses, "")
     return mesh
   
 ### Helper Functions ###
@@ -99,3 +115,4 @@ def _update_mesh(nsf, mesh, network_input, vertex_mask, vertices):
 
     mesh.set_face_attributes_from_color(pred_rgb)
     mesh.vertices = vertices + vertex_mask * (mesh.vertex_normals * pred_normal)
+    MeshNormalizer(mesh)

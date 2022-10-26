@@ -15,7 +15,7 @@ args = {
     'crop_decay': 1.0,
     'split_norm_loss': True,
     'symmetry': True,
-    'output_dir': "results",
+    'output_dir': "backend/results",
     'obj_path': "meshes/mesh1.obj",
     'standardize': True,
     'verticies_in_file': True,

@@ -10,9 +10,10 @@ from django.shortcuts import render
 from utils.view_helpers import _is_subset
 from rest_framework.response import Response
 from .x2mesh.args import args as x2mesh_args
+from rest_framework.decorators import api_view
 from .x2mesh.implementation.main import x2mesh
 from .x2mesh.implementation.utils import device
-from rest_framework.decorators import api_view
+from .stylize_utils.view_helpers import _remesh
 
 ### Global Constants ###
 print("Loading CLIP ...")
@@ -37,21 +38,27 @@ def stylize(request, *args, **kwargs):
     
     if stylize_status == status.HTTP_200_OK:
         prompt = request['prompt']
+        remesh = request['remesh']
         selection = request['selection']
         faces = np.array(request['faces'])
         vertices = np.array(request['vertices'])
 
-        x2mesh_args['mesh_type'] = None
+        mesh = pymeshlab.Mesh(vertices, faces)
+        if remesh: mesh = _remesh(mesh)
+
+        x2mesh_args['n_iter'] = 1
+        x2mesh_args['obj_path'] = mesh
         x2mesh_args['prompt'] = prompt
+        x2mesh_args['mesh_type'] = None
         x2mesh_args['verticies_in_file'] = False
         x2mesh_args['selected_vertices'] = selection
-        x2mesh_args['obj_path'] = pymeshlab.Mesh(vertices, faces)
+        
         mesh = x2mesh(x2mesh_args, clip_model, preprocess)
         
         materials = np.ones(mesh.faces.shape)
         
-        data['faces'] = json.dumps(list(mesh.faces))
-        data['materials'] = json.dumps(list(materials))
-        data['vertices'] = json.dumps(list(mesh.vertices))
+        data['faces'] = json.dumps(mesh.faces.tolist())
+        data['materials'] = json.dumps(materials.tolist())
+        data['vertices'] = json.dumps(mesh.vertices.tolist())
 
     return Response(data = data, status = stylize_status)

@@ -37,12 +37,13 @@ def segment(request, *args, **kwargs):
     if segment_status == status.HTTP_200_OK:
         # Step 0 (Initialization of variables)
         k = request['k']
+        remesh = request['remesh']
         collapsed = request['collapsed']
         faces = np.array(request['faces'])
         vertices = np.array(request['vertices'])
         
         mesh = pymeshlab.Mesh(vertices, faces)
-        # mesh = _remesh(mesh)
+        if remesh: mesh = _remesh(mesh)
         labels = segment_mesh(mesh, k, collapsed = collapsed)
 
         data['face_segments'] = labels

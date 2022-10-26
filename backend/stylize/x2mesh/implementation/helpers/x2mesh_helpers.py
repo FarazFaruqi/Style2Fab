@@ -30,10 +30,12 @@ def _initiate(clip_model, preprocess, args):
     if args['mesh_type']: mesh_name, extension = os.path.splitext(os.path.basename(mesh_path))
     else: mesh_name, extension = "mesh", "obj"
     
-    final_dir = os.path.join(output_dir, f"{mesh_name}_final_style")
-    iters_dir = os.path.join(output_dir, f"{mesh_name}_iters_style")
-    final_dir = __create_dir(final_dir)
-    iters_dir = __create_dir(iters_dir)
+    # final_dir = os.path.join(output_dir, f"{mesh_name}_final_style")
+    # iters_dir = os.path.join(output_dir, f"{mesh_name}_iters_style")
+    # final_dir = __create_dir(final_dir)
+    # iters_dir = __create_dir(iters_dir)
+    final_dir = output_dir
+    iters_dir = output_dir
     
     with open(f"{final_dir}/args.txt", 'w') as arg_file:
         arg_file.write(str(args))
