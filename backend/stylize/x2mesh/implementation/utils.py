@@ -12,6 +12,7 @@ if torch.cuda.is_available():
     device = torch.device("cuda:0")
     torch.cuda.set_device(device)
 else: device = torch.device("cpu")
+print(f"Running on device: {device}")
 
 ### Functions ###
 def read_mesh(mesh_path):

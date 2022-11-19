@@ -52,7 +52,7 @@ def stylize(request, *args, **kwargs):
         x2mesh_args['mesh_type'] = None
         x2mesh_args['verticies_in_file'] = False
         x2mesh_args['selected_vertices'] = selection
-        
+
         mesh = x2mesh(x2mesh_args, clip_model, preprocess)
         
         materials = np.ones(mesh.faces.shape)
