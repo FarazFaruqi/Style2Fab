@@ -62,11 +62,11 @@ def x2mesh(args, clip_model, preprocess):
         rendered_images, new_loss, new_norm_loss = test(nsf, mesh, renderer, encodings, clip_model, optimizer, (loss, norm_loss), norm_weight, crop_update, args, i)
         
         save_image(rendered_images, f"{args['output_dir']}/monitor.png")
-
+        
         if isinstance(loss, torch.Tensor): loss = loss.item()
-        loss = torch.Tensor(loss + new_loss.item())
-        if isinstance(loss, torch.Tensor): norm_loss = norm_loss.item()
-        norm_loss = torch.Tensor(norm_loss + new_norm_loss.item())
+        loss = torch.Tensor([loss + new_loss.item()]).to(device)
+        if isinstance(norm_loss, torch.Tensor): norm_loss = norm_loss.item()
+        norm_loss = torch.Tensor([norm_loss + new_norm_loss.item()]).to(device)
         
         losses.append(loss.item())
         norm_losses.append(norm_loss.item())

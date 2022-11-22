@@ -23,8 +23,8 @@ class Mesh():
         elif mesh_type == "obj": self.mesh_set.load_new_mesh(path)
         self.obj = self.mesh_set.current_mesh()
 
-        self.faces = torch.from_numpy(self.obj.face_matrix()).type(torch.int64).to(device)
         self.vertices = torch.from_numpy(self.obj.vertex_matrix()).float().to(device)
+        self.faces = torch.from_numpy(self.obj.face_matrix()).type(torch.int64).to(device)
         self.face_normals = normalize(torch.from_numpy(self.obj.face_normal_matrix()).to(device).float())
         self.vertex_normals = normalize(torch.from_numpy(self.obj.vertex_normal_matrix()).to(device).float())
         self.base_color = torch.full(size=(self.faces.shape[0], 3, 3), fill_value=0.5, device=device)

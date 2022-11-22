@@ -64,7 +64,6 @@ class Renderer():
         vertices_camera, vertices_world, face_normals = prepare_vertices(self.mesh.vertices, self.mesh.faces, self.camera, camera_transform=camera_transform)
         
         face_attributes = [self.mesh.face_attributes.repeat(n_views, 1, 1, 1).to(device), torch.ones((n_views, n_faces, 3, 1)).to(device)]
-
         image_features, soft_masks, face_index = dibr_rasterization(self.h, self.w, vertices_camera[:, :, :, -1], vertices_world, face_attributes, face_normals[:, :, -1])
         
         image_features, masks = image_features
