@@ -63,7 +63,7 @@ class Stylize_OT_Op(bpy.types.Operator):
 
             bpy.ops.object.mode_set(mode='OBJECT')
 
-        except Exception as error: raise error; self.report({'WARNING'}, f"Error occured while stylizing mesh\n{report(error)}")
+        except Exception as error: self.report({'WARNING'}, f"Error occured while stylizing mesh\n{report(error)}")
         
         return {'FINISHED'}
 
