@@ -43,27 +43,27 @@ class Stylize_OT_Op(bpy.types.Operator):
         
         try:
             response = requests.post(url = url, json = data).json()
-            faces = response['faces']
-            vertices = response['vertices']
-            materials = response['materials']
+            faces = json.loads(response['faces'])
+            vertices = json.loads(response['vertices'])
+            materials = json.loads(response['materials'])
             self.report({'INFO'}, f"Stylized mesh successfully!")
             
             mesh_name = f"{obj.name}-stylized"
             new_mesh = bpy.data.meshes.new(mesh_name)
             new_mesh.from_pydata(vertices, [], faces)
+  
             new_mesh.update()
-
             new_object = bpy.data.objects.new(mesh_name, new_mesh)
             bpy.context.scene.collection.objects.link(new_object)
             bpy.context.view_layer.objects.active = new_object
 
             self.report({'INFO'}, f"Added new mesh {mesh_name} ...")
-
+                          
             _assign_materials(new_object, materials)
 
             bpy.ops.object.mode_set(mode='OBJECT')
 
-        except Exception as error: self.report({'WARNING'}, f"Error occured while stylizing mesh\n{report(error)}")
+        except Exception as error: raise error; self.report({'WARNING'}, f"Error occured while stylizing mesh\n{report(error)}")
         
         return {'FINISHED'}
 
@@ -78,11 +78,11 @@ def _assign_materials(mesh, colors):
         :materials: <list> of size f x 4, where f is number of faces in mesh
     """
     j = 0
-    taken = set()
+    taken = []
     for i, color in enumerate(colors):
         if color not in taken:
             j += 1
-
+            taken.append(color)
             material = bpy.data.materials.new(''.join(['mat', mesh.name, str(j)]))
             material.diffuse_color = color
             mesh.data.materials.append(material)
