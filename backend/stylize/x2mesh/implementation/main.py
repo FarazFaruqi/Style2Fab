@@ -39,7 +39,7 @@ def x2mesh(args, clip_model, preprocess):
     norm_weight = 1.0
     rendered_images = None
     mesh, nsf, results_path, encodings, crop_cur, crop_update = _initiate(clip_model, preprocess, args)
-    MeshNormalizer(mesh)
+    MeshNormalizer(mesh)()
 
     vertex_mask = _construct_mask(args['selected_vertices'], mesh, args['verticies_in_file'])
 
@@ -115,4 +115,4 @@ def _update_mesh(nsf, mesh, network_input, vertex_mask, vertices):
 
     mesh.set_face_attributes_from_color(pred_rgb)
     mesh.vertices = vertices + vertex_mask * (mesh.vertex_normals * pred_normal)
-    MeshNormalizer(mesh)
+    MeshNormalizer(mesh)()

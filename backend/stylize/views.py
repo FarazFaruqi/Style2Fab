@@ -46,7 +46,7 @@ def stylize(request, *args, **kwargs):
         mesh = pymeshlab.Mesh(vertices, faces)
         if remesh: mesh = _remesh(mesh)
 
-        x2mesh_args['n_iter'] = 10
+        x2mesh_args['n_iter'] = 200
         x2mesh_args['obj_path'] = mesh
         x2mesh_args['prompt'] = prompt
         x2mesh_args['mesh_type'] = None

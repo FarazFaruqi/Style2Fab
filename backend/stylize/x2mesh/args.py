@@ -17,7 +17,7 @@ args = {
     'symmetry': True,
     'output_dir': "results/",
     'obj_path': "meshes/mesh1.obj",
-    'standardize': False,
+    'standardize': True,
     'verticies_in_file': True,
     'selected_vertices': "vertices.txt",
     'mesh_type': "obj",
