@@ -17,6 +17,6 @@ cd ~/fa3ds && bash start.sh
 #### Using blender plugin
 First install the plugin
 ```
-cd ~/fa3ds/plugin && bash deploy.sh
+cd ~/fa3ds && bash deploy-plugin.sh
 ```
 Now open up blender and start using fa3ds!
