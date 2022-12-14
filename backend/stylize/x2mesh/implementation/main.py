@@ -64,9 +64,9 @@ def x2mesh(args, clip_model, preprocess):
         save_image(rendered_images, f"{args['output_dir']}/monitor.png")
         
         if isinstance(loss, torch.Tensor): loss = loss.item()
-        loss = torch.Tensor([loss + new_loss.item()]).to(device)
+        loss = torch.Tensor([new_loss.item()]).to(device)
         if isinstance(norm_loss, torch.Tensor): norm_loss = norm_loss.item()
-        norm_loss = torch.Tensor([norm_loss + new_norm_loss.item()]).to(device)
+        norm_loss = torch.Tensor([new_norm_loss.item()]).to(device)
         
         losses.append(loss.item())
         norm_losses.append(norm_loss.item())
@@ -74,9 +74,9 @@ def x2mesh(args, clip_model, preprocess):
         if activate_scheduler: lr_scheduler.step()
         if args['decay_freq'] is not None and i % args['decay_freq'] == 0: norm_weight *= args['crop_decay']
 
-        if i % 100 == 0: 
-            # _report(mesh, args['n_views'], results_path, losses, i)
-            print(f"\nLoss: {losses[i]}\tNorm Loss: {norm_losses[i]}")
+        # if i % 100 == 0: 
+        #     # _report(mesh, args['n_views'], results_path, losses, i)
+        #     print(f"\nLoss: {losses[i]}\tNorm Loss: {norm_losses[i]}")
     # _report(mesh, args['n_views'], results_path, losses, i)
     _report(mesh, args['n_views'], (args['output_dir'], args['output_dir']), losses, "")
     return mesh
@@ -110,7 +110,7 @@ def _update_mesh(nsf, mesh, network_input, vertex_mask, vertices):
         :vertices: <tensor> of mesh vertices
     """
     pred_rgb, pred_normal = nsf(network_input)
-    pred_rgb = vertex_mask.to(device) * pred_rgb
+    # pred_rgb = vertex_mask.to(device) * pred_rgb
     # print(">> ", mesh.vertices.shape, mesh.vertex_normals.shape, pred_normal.shape, vertex_mask.shape, vertices.shape)
 
     mesh.set_face_attributes_from_color(pred_rgb)

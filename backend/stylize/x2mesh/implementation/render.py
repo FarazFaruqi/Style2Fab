@@ -62,7 +62,7 @@ class Renderer():
         camera_transform = generate_transformation_matrix(camera_position, -camera_position, camera_direction).to(device)
         
         vertices_camera, vertices_world, face_normals = prepare_vertices(self.mesh.vertices, self.mesh.faces, self.camera, camera_transform=camera_transform)
-        
+
         face_attributes = [self.mesh.face_attributes.repeat(n_views, 1, 1, 1).to(device), torch.ones((n_views, n_faces, 3, 1)).to(device)]
         image_features, soft_masks, face_index = dibr_rasterization(self.h, self.w, vertices_camera[:, :, :, -1], vertices_world, face_attributes, face_normals[:, :, -1])
         
@@ -70,7 +70,7 @@ class Renderer():
         images = torch.clamp(image_features, 0, 1)
         image_normals = face_normals[:, face_index][0]
         lighting = spherical_harmonic_lighting(image_normals, self.lights.repeat(n_views, 1)).unsqueeze(0)
-        
+
         # the lighting is of shape (b, h, w) and images are (b, h, w, c)
         # we convert lighting (b, h, w) -> (b, c, h, w) -> (b, h, w, c) where c = 3
         images = torch.clamp(images * lighting.repeat(3, 1, 1, 1).permute(1, 2, 3, 0).to(device), 0, 1)

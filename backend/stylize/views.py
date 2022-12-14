@@ -46,7 +46,7 @@ def stylize(request, *args, **kwargs):
         mesh = pymeshlab.Mesh(vertices, faces)
         if remesh: mesh = _remesh(mesh)
 
-        x2mesh_args['n_iter'] = 200
+        x2mesh_args['n_iter'] = 500
         x2mesh_args['obj_path'] = mesh
         x2mesh_args['prompt'] = prompt
         x2mesh_args['mesh_type'] = None
@@ -55,7 +55,7 @@ def stylize(request, *args, **kwargs):
 
         mesh = x2mesh(x2mesh_args, clip_model, preprocess)
         
-        materials = np.ones(mesh.faces.shape)
+        materials = np.ones((mesh.faces.shape[0], 4))
         
         data['faces'] = json.dumps(mesh.faces.tolist())
         data['materials'] = json.dumps(materials.tolist())

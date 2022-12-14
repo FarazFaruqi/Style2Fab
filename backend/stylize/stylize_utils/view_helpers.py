@@ -17,6 +17,6 @@ def _remesh(mesh):
     """
     ms = pymeshlab.MeshSet()
     ms.add_mesh(mesh)
-    ms.meshing_isotropic_explicit_remeshing()
+    ms.meshing_isotropic_explicit_remeshing(iterations=3)
 
     return ms.current_mesh()
