@@ -62,7 +62,7 @@ def _initiate(clip_model, preprocess, args):
     encoded_image = None
     
     if args['prompt']:
-        prompt = ' '.join(args['prompt'])
+        prompt = args['prompt']
         prompt_token = clip.tokenize([prompt]).to(device)
         encoded_text = clip_model.encode_text(prompt_token) # Text being tokenized by CLIP
 
@@ -70,7 +70,7 @@ def _initiate(clip_model, preprocess, args):
         encoded_norm = encoded_text
 
     if args['norm_prompt'] is not None:
-        prompt = ' '.join(args['norm_prompt'])
+        prompt = args['norm_prompt']
         prompt_token = clip.tokenize([prompt]).to(device)
         encoded_norm = clip_model.encode_text(prompt_token)
 

@@ -1,9 +1,11 @@
 
+import sys
 import scipy
 import pymeshlab
 import numpy as np
 from time import time
 from tqdm import tqdm
+sys.setrecursionlimit(10000)
 
 ### Global Constants ###
 _coords = lambda vertices, indicies: np.array([vertices[i] for i in indicies])
