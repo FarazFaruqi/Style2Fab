@@ -13,7 +13,7 @@ from scipy.cluster.vq import kmeans2
 from utils.view_helpers import _is_subset
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .segment_utils.view_helpers import segment_mesh, _remesh, _extract_segments
+from .segment_utils.view_helpers import segment_mesh, _remesh, extract_segments
 sys.setrecursionlimit(10000)
 
 @api_view(['POST'])
@@ -45,7 +45,7 @@ def segment(request, *args, **kwargs):
         if remesh: mesh = _remesh(mesh)
         
         labels = segment_mesh(mesh, k, collapsed = collapsed)
-        _extract_segments(vertices, faces, labels)
+        extract_segments(vertices, faces, labels)
 
         data['face_segments'] = labels
         data['faces'] = list(mesh.face_matrix())

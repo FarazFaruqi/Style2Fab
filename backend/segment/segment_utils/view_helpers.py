@@ -4,7 +4,7 @@ import pathlib
 import pymeshlab
 import numpy as np
 import scipy.sparse.linalg
-from mesh_graph import MeshGraph
+from .mesh_graph import MeshGraph
 from scipy.cluster.vq import kmeans2
 
 ### Global Constants ###
@@ -73,7 +73,7 @@ def extract_segments(vertices, faces, labels, name = ""):
         :faces: <np.ndarray>
         :labels: <list<int>>
     """
-    parent_dir = pathlib.Path(__file__).parent.parent.resolve()
+    parent_dir = pathlib.Path(__file__).parent.resolve()
     i = len([name for name in os.listdir(f"{parent_dir}/models") if not os.path.isdir(name)])
     model_dir = f"{parent_dir}/models/model_{i}_{name}"
     _construct_dir(model_dir)
@@ -156,7 +156,7 @@ def _unwrap_labels(mesh_graph, labels):
         for i in faces: unwrapped_labels[i] = labels[j]
     return unwrapped_labels
 
-def _batch_seg(meshes):
+def batch_seg(meshes):
     """ 
     Segment a batch of meshes and stores each
 
@@ -174,11 +174,11 @@ def _batch_seg(meshes):
         vertices = mesh.vertex_matrix()
 
         labels = segment_mesh(mesh, k, collapsed = collapsed)
-        _extract_segments(vertices, faces, labels)
+        extract_segments(vertices, faces, labels)
     
-if __name__ == "__main__":
-    base_dir = "/home/atkatary/fa3ds/backend/segment/segment_utils/models"
-    meshes = [
-        (f"{base_dir}/vase.obj", 12)
-    ]
-    _batch_seg(meshes)
+# if __name__ == "__main__":
+    # base_dir = "/home/ubuntu/fa3ds/backend/segment/segment_utils/models"
+    # meshes = [
+    #     (f"{base_dir}/vase.obj", 12)
+    # ]
+    # batch_seg(meshes)
