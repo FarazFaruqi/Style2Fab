@@ -39,6 +39,11 @@ props = {
         default = 'A vase made of wood'
     ),
 
+    'num_segs': IntProperty(
+        name = "", 
+        default = 10
+    ),
+
     'models': CollectionProperty(
         type = Model
     )

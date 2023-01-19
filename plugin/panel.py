@@ -26,7 +26,11 @@ class FA3DS_PT_Panel(Panel):
         # layout.separator()
 
         # layout.label(text="Segmentation")
-        
+        layout.label(text="Number of segments")
+        seg_col = layout.column()
+        seg_row = seg_col.row()
+        seg_row.prop(context.scene, "num_segs")
+
         layout.operator("mesh.segment_mesh", icon = "PLUGIN")
 
         if len(context.scene.models) > 0:

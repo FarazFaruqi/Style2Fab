@@ -42,7 +42,7 @@ class Segment_OT_Op(bpy.types.Operator):
             self.report({'ERROR'}, "Separated not connected parts, choose one of them for segmentation!")
             return {'CANCELLED'}
         else:
-            k = 12
+            k = context.scene.num_segs
             objs = [obj for obj in bpy.context.selected_objects]
             for obj in objs:
                 vertices = []
@@ -52,7 +52,7 @@ class Segment_OT_Op(bpy.types.Operator):
                 for face in obj.data.polygons: faces.append([i for i in face.vertices])
 
                 url = "http://0.0.0.0:8000/segment/"
-                
+
                 data = json.dumps({'vertices': vertices, 'faces': faces, 'k': k, 'collapsed': True, 'remesh': False})
 
                 try:
