@@ -57,7 +57,7 @@ def segment_mesh(mesh, k, collapsed = True):
     eigen_vectors /= np.linalg.norm(eigen_vectors, axis=1)[:,None]
 
     # Step 5
-    _, labels = kmeans2(eigen_vectors, k, minit="++", iter=50)
+    _, labels = kmeans2(eigen_vectors, k, minit="++", iter=100)
 
     if collapsed: labels = _unwrap_labels(mesh_graph, labels)
     print(f"\033[33m[Out] >> Segmented mesh into {len(set(labels))} segments\033[0m")

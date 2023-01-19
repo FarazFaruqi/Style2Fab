@@ -1,1 +1,4 @@
 ./frontend
+./backend/utils/*
+./backend/segment/segment_utils/models/*
+./backend/segment/models/*

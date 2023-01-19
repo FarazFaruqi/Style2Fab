@@ -50,6 +50,10 @@ def segment(request, *args, **kwargs):
         data['face_segments'] = labels
         data['faces'] = list(mesh.face_matrix())
         data['vertices'] = list(mesh.vertex_matrix())
-        data['labels'] = ["function", "function", "form", "function", "function", "form", "function", "form", "form", "function", "form", "function"]
+        data['labels'] = [
+            "function", "function", "form", "function", "function", "form", "function", "form", "form", "function", "form", "function", 
+            "function", "function", "form", "function", "function", "form", "function", "form", "form", "function", "form", "function",
+            "form"
+        ]
         
     return Response(data = data, status = segment_status)
