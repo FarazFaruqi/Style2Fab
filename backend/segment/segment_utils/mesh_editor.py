@@ -60,11 +60,12 @@ class MeshEditor():
 
 if __name__ == "__main__":
     mesh_editor = MeshEditor()
-    mesh_path = "/home/ubuntu/fa3ds/backend/utils/new_thing_files/files_Boite_Micro_SD_2932245/Porte_carte_SD_MicroSD_2.stl"
-    # models = ["files__MINI__All_In_One_3D_printer_test_2806295/3D_printer_test_mini"]
 
-    # meshes = [f"{home_dir}/{model_path}.obj" for model_path in models]
-
-    # for model_path in models:
-    #     mesh_editor.to_obj(f"{home_dir}/{model_path}.stl")
-    mesh_editor.to_obj(mesh_path)
+    stl_paths = [
+        '/home/ubuntu/fa3ds/backend/segment/segment_utils/models/base.stl', 
+        '/home/ubuntu/fa3ds/backend/segment/segment_utils/models/knob.stl',
+        '/home/ubuntu/fa3ds/backend/segment/segment_utils/models/pinch.stl'
+    ]
+    
+    for model_path in stl_paths:
+        mesh_editor.to_obj(model_path)

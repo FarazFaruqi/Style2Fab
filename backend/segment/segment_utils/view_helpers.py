@@ -2,6 +2,7 @@ import os
 import re
 import pathlib
 import pymeshlab
+import threading
 import numpy as np
 import scipy.sparse.linalg
 from .mesh_graph import MeshGraph
@@ -10,7 +11,7 @@ from scipy.cluster.vq import kmeans2
 ### Global Constants ###
 yes = {"yes", "yeah", "y", "yea"}
 
-def segment_mesh(mesh, k, collapsed = True):
+def segment_mesh(mesh, K, collapsed = True, parallelize = False):
     """
     Segments a mesh as follows:
         1. Converts mesh into a face graph, where 
@@ -57,11 +58,26 @@ def segment_mesh(mesh, k, collapsed = True):
     eigen_vectors /= np.linalg.norm(eigen_vectors, axis=1)[:,None]
 
     # Step 5
-    _, labels = kmeans2(eigen_vectors, k, minit="++", iter=100)
+    all_labels = []
+    faces = mesh.face_matrix()
+    vertices = mesh.vertex_matrix()
 
-    if collapsed: labels = _unwrap_labels(mesh_graph, labels)
-    print(f"\033[33m[Out] >> Segmented mesh into {len(set(labels))} segments\033[0m")
-    return labels
+    if parallelize:
+        for i, k in enumerate(K):
+            def f(args):
+                vertices, faces, mesh_graph, collapsed, k, eigen_vectors = args
+                _, labels = kmeans2(eigen_vectors, k, minit="++", iter=50)
+                if collapsed: labels = _unwrap_labels(mesh_graph, labels)
+                extract_segments(vertices, faces, labels)
+                all_labels.append(labels)
+            new_thread = thread(i, f, [vertices, faces, mesh_graph, collapsed, k, eigen_vectors])
+            new_thread.start()
+    else:
+        _, labels = kmeans2(eigen_vectors, K[0], minit="++", iter=50)
+        all_labels = [labels]
+
+    print(f"\033[33m[Out] >> Segmented mesh into {[len(set(labels)) for labels in all_labels]} segments\033[0m")
+    return all_labels
 
 def extract_segments(vertices, faces, labels, name = ""):
     """
@@ -73,7 +89,8 @@ def extract_segments(vertices, faces, labels, name = ""):
         :faces: <np.ndarray>
         :labels: <list<int>>
     """
-    parent_dir = pathlib.Path(__file__).parent.resolve()
+    # parent_dir = pathlib.Path(__file__).parent.resolve()
+    parent_dir = "/home/ubuntu/fa3ds/backend/segment/segment_utils"
     i = len([name for name in os.listdir(f"{parent_dir}/models") if not os.path.isdir(name)])
     model_dir = f"{parent_dir}/models/model_{i}_{name}"
     _construct_dir(model_dir)
@@ -111,6 +128,19 @@ def extract_segments(vertices, faces, labels, name = ""):
         ms.add_mesh(mesh)
         ms.save_current_mesh(f"{model_dir}/segment_{label}/segment_{label}.obj")
 
+### Helper Classes ###
+class thread(threading.Thread):
+    def __init__(self, thread_id, f, args):
+        threading.Thread.__init__(self)
+        self.thread_id = thread_id
+        self.args = args
+        self.f = f
+ 
+        # helper function to execute the threads
+    def run(self):
+        print(f"[{self.thread_id}] Starting ...")
+        return self.f(self.args)
+    
 ### Helper Functions ####
 def _remesh(mesh):
     """
@@ -164,7 +194,7 @@ def batch_seg(meshes):
         :meshes: <list<str, int>> absolute pathes of all meshes to segment 
                                   along with number of segments it should be segmented into
     """
-    for mesh_path, k in meshes:
+    for mesh_path, K in meshes:
         collapsed = True
         ms = pymeshlab.MeshSet()
         ms.load_new_mesh(mesh_path)
@@ -173,12 +203,12 @@ def batch_seg(meshes):
         faces = mesh.face_matrix()
         vertices = mesh.vertex_matrix()
 
-        labels = segment_mesh(mesh, k, collapsed = collapsed)
-        extract_segments(vertices, faces, labels)
+        al_labels = segment_mesh(mesh, K, collapsed = collapsed, parallelize = True)
+        
     
-# if __name__ == "__main__":
-    # base_dir = "/home/ubuntu/fa3ds/backend/segment/segment_utils/models"
-    # meshes = [
-    #     (f"{base_dir}/vase.obj", 12)
-    # ]
-    # batch_seg(meshes)
+if __name__ == "__main__":
+    base_dir = "/home/ubuntu/fa3ds/backend/segment/segment_utils/models"
+    meshes = [
+        (f"{base_dir}/vase.obj", [5, 10, 15, 20]),
+    ]
+    batch_seg(meshes)
