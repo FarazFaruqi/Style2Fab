@@ -78,7 +78,7 @@ props = {
 
     'mesh_dir': StringProperty(
         name = "", 
-        default = "/home/ubuntu/fa3ds/backend/segment/segment_utils/models"
+        default = "/home/ubuntu/fa3ds/backend/segment/segment_utils/ui_models"
     ),
 
     'models': CollectionProperty(
