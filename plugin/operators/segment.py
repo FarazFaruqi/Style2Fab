@@ -3,6 +3,7 @@ import bpy
 import json
 import bmesh
 import requests 
+from .utils import remove_mesh, add_mesh
 
 ### Constants ###
 colors = {
@@ -79,19 +80,10 @@ class Segment_OT_Op(bpy.types.Operator):
                     
                     mesh_name = obj.name
                     # Remove old mesh   
-                    bpy.ops.object.select_all(action='DESELECT')
-                    bpy.data.objects[mesh_name].select_set(True)
-                    bpy.ops.object.delete()
-                    self.report({'INFO'}, f"Removed old mesh {mesh_name} ...")
+                    remove_mesh(self, mesh_name)
 
                     # Add new mesh
-                    new_mesh = bpy.data.meshes.new(mesh_name)
-                    new_mesh.from_pydata(vertices, [], faces)
-                    new_mesh.update()
-
-                    new_object = bpy.data.objects.new(mesh_name, new_mesh)
-                    bpy.context.scene.collection.objects.link(new_object)
-                    bpy.context.view_layer.objects.active = new_object
+                    new_object = add_mesh(self, mesh_name, vertices, faces)
 
                     self.report({'INFO'}, f"Added new mesh {mesh_name} ...")
 
