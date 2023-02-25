@@ -24,7 +24,6 @@ from .operators.stylize import Stylize_OT_Op
 from .operators.prev_segment import PrevSeg_OT_Op
 from .operators.next_segment import NextSeg_OT_Op
 from .operators.update_labels import UpdateLabels_OT_Op
-from .operators.select_segment import SelectSegment_OT_Op
 from .operators.show_mesh_info import ShowModelInfoFunction_OT_Op, ShowModelInfoForm_OT_Op
 from bpy.props import StringProperty, CollectionProperty, BoolProperty, IntProperty, EnumProperty
 
