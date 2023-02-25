@@ -28,21 +28,27 @@ class Segment_PT_Panel(Panel):
                 if not model.segmented: continue
                 layout.label(text=f"{model.name.capitalize()}")
                 
-                for label in ["Function", "Form"]:
-                    if not model.show_form and label == "Form": 
-                        layout.operator(f"mesh.show_mesh_info_form", text=f"{label} Components", icon="TRIA_DOWN")
-                        continue
-                    if not model.show_function and label == "Function": 
-                        layout.operator(f"mesh.show_mesh_info_function", text=f"{label} Components", icon="TRIA_DOWN")
-                        continue
-                    layout.operator(f"mesh.show_mesh_info_{label.lower()}", text=f"{label} Components", icon="TRIA_UP")
+                for i in range(len(model.segments)):
+                    segment = model.segments[i]
 
-                    for i in range(len(model.segments)):
-                        segment = model.segments[i]
-                        if segment.label == label.lower():
-                            segment_row = layout.row()
-                            segment_col = segment_row.column()
-                            segment_col.prop(segment, "selected", text=f"Part {i} - {segment.color}")
+                    if segment.selected: draw_segment_cursor(layout, segment); break
+                else: draw_segment_cursor(layout, model.segments[0])
+
+                layout.operator("mesh.update_labels", text="Save", icon="CHECKMARK")
                 layout.separator()
                 
-            layout.operator("mesh.select_segment", icon = "CHECKMARK")
+            # layout.operator("mesh.select_segment", icon = "CHECKMARK")
+
+### Helper Functions ###
+def draw_segment_cursor(layout, segment): 
+    label_row = layout.row()
+    form_col = label_row.column()
+    func_col = label_row.column()
+    form_col.prop(segment, "is_form", text=f"Form")
+    func_col.prop(segment, "is_func", text=f"Function")
+
+    seg_row = layout.row()
+    seg_col = seg_row.column()
+    seg_col_2 = seg_row.column()
+    seg_col.operator("mesh.prev_segment", icon="TRIA_LEFT")
+    seg_col_2.operator("mesh.next_segment", icon = "TRIA_RIGHT")

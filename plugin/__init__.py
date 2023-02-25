@@ -21,6 +21,9 @@ from .operators.next_mesh import Next_OT_Op
 from .operators.prev_mesh import Prev_OT_Op
 from .operators.segment import Segment_OT_Op
 from .operators.stylize import Stylize_OT_Op
+from .operators.prev_segment import PrevSeg_OT_Op
+from .operators.next_segment import NextSeg_OT_Op
+from .operators.update_labels import UpdateLabels_OT_Op
 from .operators.select_segment import SelectSegment_OT_Op
 from .operators.show_mesh_info import ShowModelInfoFunction_OT_Op, ShowModelInfoForm_OT_Op
 from bpy.props import StringProperty, CollectionProperty, BoolProperty, IntProperty, EnumProperty
@@ -30,6 +33,8 @@ class Segments(bpy.types.PropertyGroup):
     label: StringProperty()
     faces: StringProperty()
     color: StringProperty()
+    is_form: BoolProperty(default = True)
+    is_func: BoolProperty(default = False)
     selected: BoolProperty(default = False)
 
 class Model(bpy.types.PropertyGroup):
@@ -47,6 +52,9 @@ classes = (
     Delete_OT_Op,
     Segment_OT_Op,
     Stylize_OT_Op, 
+    PrevSeg_OT_Op,
+    NextSeg_OT_Op,
+    UpdateLabels_OT_Op,
     SelectSegment_OT_Op, 
     ShowModelInfoForm_OT_Op, 
     ShowModelInfoFunction_OT_Op, 

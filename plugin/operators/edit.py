@@ -28,6 +28,7 @@ class Edit_OT_Op(bpy.types.Operator):
             self.report({'ERROR'}, "Separated not connected parts, choose one of them for segmentation!")
             return {'CANCELLED'}
         else:
+            bpy.ops.object.mode_set(mode='OBJECT')
             mode = context.scene.mode
             objs = [obj for obj in bpy.context.selected_objects]
             for obj in objs:
@@ -55,6 +56,6 @@ class Edit_OT_Op(bpy.types.Operator):
                     # Add new mesh
                     new_object = add_mesh(self, mesh_name, vertices, faces)
 
-                except Exception as error: print(f"Error occured while editing mesh\n{report(error)}")
+                except Exception as error: self.report({'ERROR'}, f"Error occured while editing mesh\n{report(error)}")
                 
             return {'FINISHED'}

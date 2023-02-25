@@ -2,16 +2,15 @@ import bpy
 import json
 import bmesh
 import requests 
-from .utils import remove_mesh, add_mesh, fetch
 
 ### Constants ###
 report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
 
-class Prev_OT_Op(bpy.types.Operator):
-    """ Moves to previous mesh """
+class UpdateLabels_OT_Op(bpy.types.Operator):
+    """ Moves to next mesh """
 
-    bl_idname = "mesh.prev_mesh"
-    bl_label = "prev"
+    bl_idname = "mesh.update_labels"
+    bl_label = "Update Labels"
     
     @classmethod
     def poll(cls, context):
@@ -19,7 +18,5 @@ class Prev_OT_Op(bpy.types.Operator):
         return True
 
     def execute(self, context):
-        """Executes the segmentation"""
-        i = context.scene.i - 1
-        bpy.ops.object.mode_set(mode='OBJECT')
-        return fetch(self, context, i)
+        """ Executes the fetching of the next mesh """
+        return 

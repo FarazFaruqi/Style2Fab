@@ -21,4 +21,5 @@ class Next_OT_Op(bpy.types.Operator):
     def execute(self, context):
         """ Executes the fetching of the next mesh """
         i = context.scene.i + 1
+        bpy.ops.object.mode_set(mode='OBJECT')
         return fetch(self, context, i)
