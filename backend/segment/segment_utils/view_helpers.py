@@ -39,7 +39,7 @@ colors = [
 results_dir = "/home/ubuntu/fa3ds/backend/results"
 default_models_dir = "/home/ubuntu/segmented_models"
 
-def segment_mesh(mesh, K, collapsed = True, parallelize = False, parent_dir = default_models_dir):
+def segment_mesh(mesh, K, collapsed = True, parallelize = False, extract = True, parent_dir = default_models_dir):
     """
     Segments a mesh as follows:
         1. Converts mesh into a face graph, where 
@@ -105,13 +105,13 @@ def segment_mesh(mesh, K, collapsed = True, parallelize = False, parent_dir = de
     if parallelize:
         for i, k in enumerate(K):
             def f(args):
-                vertices, faces, mesh_graph, collapsed, k, eigen_vectors, component_dir = args
+                vertices, faces, mesh_graph, collapsed, k, eigen_vectors, extract, component_dir = args
 
                 _, labels = kmeans2(eigen_vectors, k, minit="++", iter=50)
                 if collapsed: labels = _unwrap_labels(mesh_graph, labels)
-                extract_segments(vertices, faces, labels, k, component_dir)
+                if extract: extract_segments(vertices, faces, labels, k, component_dir)
                 all_labels.append(labels)
-            new_thread = thread(i, f, [vertices, faces, mesh_graph, collapsed, k, eigen_vectors, parent_dir])
+            new_thread = thread(i, f, [vertices, faces, mesh_graph, collapsed, k, eigen_vectors, extract, parent_dir])
             new_thread.start()
     else:
         _, labels = kmeans2(eigen_vectors, K[0], minit="++", iter=50)

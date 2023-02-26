@@ -40,7 +40,7 @@ class MeshGraph():
         self.face_normals = mesh_set.current_mesh().face_normal_matrix()
         self.m = self.faces.shape[0]
 
-        print("----- Computing face adj ... ------")
+        print("----- Computing face adj ...")
         self.edge_to_faces = {}
         for i in tqdm(range(self.m)):
             v1, v2, v3 = self.faces[i]
@@ -52,7 +52,7 @@ class MeshGraph():
                 try: self.edge_to_faces[edge].append(i)
                 except: self.edge_to_faces[edge] = [i]
         
-        print("------ Computing avg_geodisc and avg_ang_dist matrix + face_objs graph ... ------")
+        print("------ Computing avg_geodisc and avg_ang_dist matrix + face_objs graph ...")
         n = 0
         self.geodisc = np.zeros((self.m, self.m))
         self.ang_dist = np.zeros((self.m, self.m))
@@ -128,7 +128,7 @@ class MeshGraph():
         Inputs
             :k: <int> condensation factor
         """
-        print("------ Computing similarity matrix ... ------")
+        print("------ Computing similarity matrix ...")
         # Convert matrix to linked list graph and use parent/child relationship in order to collapse graph by factor of k
         start_time = time()
         if collapsed:
@@ -170,12 +170,12 @@ class MeshGraph():
     ### Helper Methods ###
     def __construct_adj_matrix(self):
         """ Construct the m x m adjacency matrix """
-        print("------ Computing face graph adjacency matrix ... ------")
+        print("------ Computing face graph adjacency matrix ...")
         self.adj_matrix = self.__weights(delta = 0.03)
     
     def __construct_collapsed_adj_matrix(self):
         """ Construct the m x m adjacency matrix """
-        print("------ Computing collapsed face graph adjacency matrix ... ------")
+        print("------ Computing collapsed face graph adjacency matrix ...")
         self.collapsed_adj_matrix = self.__collapsed_weights(delta = 0.03)
 
     def __weights(self, delta = 0.03):
