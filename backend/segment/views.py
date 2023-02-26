@@ -17,7 +17,7 @@ from .segment_utils.view_helpers import segment_mesh, _remesh, extract_segments
 sys.setrecursionlimit(10000)
 
 ### Global Constants ###
-default_models_dir = "/home/ubuntu/fa3ds/backend/results/segmented_models"
+default_models_dir = "/home/ubuntu/fa3ds/backend/results/api_segmented_models"
 
 @api_view(['POST'])
 def segment(request, *args, **kwargs):
