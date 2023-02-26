@@ -34,6 +34,7 @@ class Segments(bpy.types.PropertyGroup):
     selected: BoolProperty(default = False)
 
 class Model(bpy.types.PropertyGroup):
+    id: StringProperty()
     name: StringProperty()
     show_form: BoolProperty(default = True)
     stylized: BoolProperty(default = False)
@@ -80,11 +81,6 @@ props = {
     'mesh_dir': StringProperty(
         name = "", 
         default = "/home/ubuntu/fa3ds/backend/segment/segment_utils/models"
-    ),
-
-    'mesh_name': StringProperty(
-        name = "", 
-        default = ""
     ),
 
     'face_count': IntProperty(

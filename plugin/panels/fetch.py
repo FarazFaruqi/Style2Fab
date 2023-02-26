@@ -23,7 +23,6 @@ class MeshSelection_PT_Panel(Panel):
         mesh_dir_row = mesh_dir_col.row()
         mesh_dir_row.prop(context.scene, "mesh_dir")
 
-        layout.label(text=f"Selected mesh {context.scene.mesh_name}")
         layout.label(text=f"No. faces {context.scene.face_count}")
         layout.label(text=f"No. vertices {context.scene.vertex_count}")
 
