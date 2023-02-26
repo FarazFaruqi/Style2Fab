@@ -37,7 +37,7 @@ colors = [
     {"centroid": "red", "points": "blue"},
 ]
 results_dir = "/home/ubuntu/fa3ds/backend/results"
-default_models_dir = "/home/ubuntu/segmented_models"
+default_models_dir = "/home/ubuntu/fa3ds/backend/results/segmented_models"
 
 def segment_mesh(mesh, K, collapsed = True, parallelize = False, extract = True, parent_dir = default_models_dir):
     """
