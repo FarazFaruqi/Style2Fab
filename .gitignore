@@ -1,4 +1,10 @@
 ./frontend
 ./backend/utils/*
 ./backend/segment/segment_utils/models/*
+./backend/segment/segment_utils/ui_models/*
 ./backend/segment/models/*
+./testing/*
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
