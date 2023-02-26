@@ -22,4 +22,7 @@ class Prev_OT_Op(bpy.types.Operator):
         """Executes the segmentation"""
         i = context.scene.i - 1
         bpy.ops.object.mode_set(mode='OBJECT')
+        if "Loaded" not in context.scene.models: 
+            model = context.scene.models.add()
+            model.name = "Loaded"
         return fetch(self, context, i)

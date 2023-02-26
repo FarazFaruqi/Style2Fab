@@ -1,7 +1,7 @@
 import bpy
 import json
+import bmesh
 import requests
-from mathutils import Vector, Matrix
 
 ### Constants ###
 report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
@@ -32,7 +32,6 @@ colors = {
     23: ["gold II", (1.0, 0.8431372549019608, 0.0, 1)],
     24: ["gold III", (1.0, 0.8431372549019608, 0.0, 1)],
 }
-
 
 def remove_mesh(self, mesh_name):
     bpy.ops.object.select_all(action='DESELECT')
@@ -99,12 +98,13 @@ def fetch(self, context, i):
             assign_materials(new_object, k, face_segments, context, labels, model)
 
     except Exception as error: 
-        self.report({'ERROR'}, f"Error occured while editing mesh\n{report(error)}")
+        self.report({'ERROR'}, f"Error occured while fetching mesh\n{report(error)}")
             
     return {'FINISHED'}
 
 def assign_materials(mesh, k, face_segments, context, labels, model):
     """ Assigns a colored material for each found segment """
+    if face_segments is None: return
     n = len(face_segments)
     m = len(set(face_segments))
     mesh.data.materials.clear()
@@ -128,4 +128,47 @@ def assign_materials(mesh, k, face_segments, context, labels, model):
 
     for i, label in enumerate(face_segments):
         mesh.data.polygons[i].material_index = int(label)
-  
+
+def get_segment_vertices(op, context, j):
+    """ Gets all vertices of selected segment(s) """
+    obj = context.view_layer.objects.active
+    mesh = bmesh.from_edit_mesh(obj.data)
+    for vertex in mesh.verts:
+        vertex.select = False
+
+    vertices = []
+    for model in context.scene.models:
+        if model.name != obj.name.lower(): continue
+        if not model.segmented: continue
+        for i in range(len(model.segments)):
+            segment = model.segments[i]
+            if not segment.selected: continue
+            else:
+                if i + j == len(model.segments): break
+                segment.selected = False
+                segment = model.segments[i + j]
+                segment.selected = True
+                
+                faces = list(map(int, segment.faces.split("\n")))
+                
+                op.report({'INFO'}, f"{faces}")
+                op.report({'INFO'}, f"[{segment.i} selected] >> {segment.selected}")
+                for i in faces:
+                    for vertex in obj.data.polygons[i].vertices:
+                        vertices.append(vertex)
+                break
+        break
+
+    return vertices
+
+def select_vertices(context, selected_vertices):
+    """ Selects all the vertices in selected_vertices in the UI and unselects all else """
+    bpy.ops.object.mode_set(mode='OBJECT')
+    bpy.ops.object.mode_set(mode='EDIT')
+
+    obj = context.view_layer.objects.active
+    mesh = bmesh.from_edit_mesh(obj.data)
+
+    for vertex in mesh.verts:
+        if vertex.index in selected_vertices: vertex.select = True
+        else: vertex.select = False

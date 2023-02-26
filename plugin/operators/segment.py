@@ -61,7 +61,7 @@ class Segment_OT_Op(bpy.types.Operator):
                     self.report({'INFO'}, f"Added new mesh {mesh_name} ...")
 
                     for stored_models in context.scene.models: 
-                        if stored_models.name == mesh_name.lower(): 
+                        if stored_models.name.lower() == mesh_name.lower(): 
                             model = stored_models
                             break
                     else: 

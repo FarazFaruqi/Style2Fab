@@ -28,19 +28,21 @@ class Segment_PT_Panel(Panel):
                 if not model.segmented: continue
                 layout.label(text=f"{model.name.capitalize()}")
                 
+                # selected segment index
+                j = 0 
                 for i in range(len(model.segments)):
                     segment = model.segments[i]
 
-                    if segment.selected: draw_segment_cursor(layout, segment); break
-                else: draw_segment_cursor(layout, model.segments[0])
+                    if segment.selected: j = i; break
+                _draw_segment_cursor(layout, model.segments[j])
 
                 layout.operator("mesh.update_labels", text="Save", icon="CHECKMARK")
                 layout.separator()
                 
-            # layout.operator("mesh.select_segment", icon = "CHECKMARK")
+            layout.operator("mesh.select_segment", icon = "CHECKMARK")
 
 ### Helper Functions ###
-def draw_segment_cursor(layout, segment): 
+def _draw_segment_cursor(layout, segment): 
     label_row = layout.row()
     form_col = label_row.column()
     func_col = label_row.column()
