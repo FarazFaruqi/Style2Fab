@@ -11,7 +11,7 @@ report = lambda error: f"----------------------------\n{error}\n----------------
 class Segment_OT_Op(bpy.types.Operator):
     """ Segment a mesh """
 
-    bl_idname = "mesh.segment_mesh"
+    bl_idname = "mesh.segment"
     bl_label = "Segment mesh"
     
     @classmethod

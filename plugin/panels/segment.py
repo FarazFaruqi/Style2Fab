@@ -21,7 +21,7 @@ class Segment_PT_Panel(Panel):
         seg_row.label(text="# segments:")
         seg_row.prop(context.scene, "num_segs")
 
-        layout.operator("mesh.segment_mesh", icon = "PLUGIN")
+        layout.operator("mesh.segment", icon = "PLUGIN")
 
         if len(context.scene.models) > 0:
             for model in context.scene.models:
@@ -34,12 +34,9 @@ class Segment_PT_Panel(Panel):
                     segment = model.segments[i]
 
                     if segment.selected: j = i; break
-                _draw_segment_cursor(layout, model.segments[j])
+                if j < len(model.segments): _draw_segment_cursor(layout, model.segments[j])
 
-                layout.operator("mesh.update_labels", text="Save", icon="CHECKMARK")
-                layout.separator()
-                
-            layout.operator("mesh.select_segment", icon = "CHECKMARK")
+                layout.operator("mesh.annotate", text="Save", icon="CHECKMARK")
 
 ### Helper Functions ###
 def _draw_segment_cursor(layout, segment): 
@@ -52,5 +49,5 @@ def _draw_segment_cursor(layout, segment):
     seg_row = layout.row()
     seg_col = seg_row.column()
     seg_col_2 = seg_row.column()
-    seg_col.operator("mesh.prev_segment", icon="TRIA_LEFT")
-    seg_col_2.operator("mesh.next_segment", icon = "TRIA_RIGHT")
+    seg_col.operator("segment.prev", icon="TRIA_LEFT")
+    seg_col_2.operator("segment.next", icon = "TRIA_RIGHT")

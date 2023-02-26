@@ -2,15 +2,15 @@ import bpy
 import json
 import bmesh
 import requests 
+from .utils import report
 
 ### Constants ###
-report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
 
 class Stylize_OT_Op(bpy.types.Operator):
     """ Segment a mesh """
 
-    bl_idname = "mesh.stylize_mesh"
-    bl_label = "Stylizes mesh"
+    bl_idname = "mesh.stylize"
+    bl_label = "Stylize"
     
     @classmethod
     def poll(cls, context):

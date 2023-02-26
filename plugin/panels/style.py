@@ -23,4 +23,4 @@ class Style_PT_Panel(Panel):
 
         stylize_row = layout.row()
         stylize_col = stylize_row.column()
-        stylize_col.operator("mesh.stylize_mesh", icon = "PLUGIN")
+        stylize_col.operator("mesh.stylize", icon = "PLUGIN")

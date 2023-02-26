@@ -33,7 +33,7 @@ class Delete_OT_Op(bpy.types.Operator):
                     mesh_name = obj.name
                     for i in range(len(context.scene.models)): 
                         stored_model = context.scene.models[i]
-                        if stored_model.name == mesh_name.lower(): 
+                        if stored_model.name.lower() == mesh_name.lower(): 
                             context.scene.models.remove(i)
                             break
 

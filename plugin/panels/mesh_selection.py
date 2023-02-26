@@ -25,5 +25,5 @@ class MeshSelection_PT_Panel(Panel):
         edit_row = layout.row()
         edit_col = edit_row.column()
         edit_col_2 = edit_row.column()
-        edit_col.operator("mesh.prev_mesh", icon="TRIA_LEFT")
-        edit_col_2.operator("mesh.next_mesh", icon = "TRIA_RIGHT")
+        edit_col.operator("mesh.prev", icon="TRIA_LEFT")
+        edit_col_2.operator("mesh.next", icon = "TRIA_RIGHT")

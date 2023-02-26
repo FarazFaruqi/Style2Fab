@@ -10,7 +10,7 @@ report = lambda error: f"----------------------------\n{error}\n----------------
 class Edit_OT_Op(bpy.types.Operator):
     """ Edit a mesh """
 
-    bl_idname = "mesh.edit_mesh"
+    bl_idname = "mesh.edit"
     bl_label = "Edit mesh"
     
     @classmethod

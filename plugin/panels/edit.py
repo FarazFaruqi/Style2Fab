@@ -22,4 +22,4 @@ class Edit_PT_Panel(Panel):
 
         edit_row = layout.row()
         edit_col = edit_row.column()
-        edit_col.operator("mesh.edit_mesh", icon = "PLUGIN")
+        edit_col.operator("mesh.edit", icon = "PLUGIN")
