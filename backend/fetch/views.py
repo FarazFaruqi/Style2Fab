@@ -44,33 +44,34 @@ def fetch(request, *args, **kwargs):
         print(f"Fetching mesh {i} from {mesh_dir} ...")
 
         mesh, faces, vertices, face_segments = None, None, None, None
-        for file in os.listdir(mesh_dir): 
-            mesh_path = f"{mesh_dir}/{file}"
-            
-            if os.path.isfile(mesh_path):
-                mesh_name, mesh_ext = os.path.splitext(mesh_path)
-                if mesh_ext != ".obj": continue
+        try:
+            for file in os.listdir(mesh_dir): 
+                mesh_path = f"{mesh_dir}/{file}"
+                
+                if os.path.isfile(mesh_path):
+                    mesh_name, mesh_ext = os.path.splitext(mesh_path)
+                    if mesh_ext != ".obj": continue
 
-                if i == 0: 
-                    ms = pymeshlab.MeshSet()
-                    ms.load_new_mesh(mesh_path)
-                    mesh = ms.current_mesh()
-                    print(f"Found mesh at {mesh_path}!")
-                    break
-                i -= 1
-
-            if os.path.isdir(mesh_path):
-                try:
                     if i == 0: 
-                        mesh, face_segments = reconstruct_mesh(mesh_path)
-                        print(f"Found segmented mesh at {mesh_path}!")
+                        ms = pymeshlab.MeshSet()
+                        ms.load_new_mesh(mesh_path)
+                        mesh = ms.current_mesh()
+                        print(f"Found mesh at {mesh_path}!")
                         break
                     i -= 1
-                except Exception as error: 
-                    raise error
-                    
-                    print(report(error))
-                    continue
+
+                if os.path.isdir(mesh_path):
+                    try:
+                        # print(f"Searching {mesh_path} ...")
+                        if i == 0: 
+                            mesh, face_segments = reconstruct_mesh(mesh_path)
+                            print(f"Found segmented mesh at {mesh_path}!")
+                            break
+                        i -= 1
+                    except Exception as error:                 
+                        print(report(error))
+                        continue
+        except Exception as error: print(report(error))
 
         if mesh is not None:
             faces = list(mesh.face_matrix())

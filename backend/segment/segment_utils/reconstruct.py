@@ -3,6 +3,8 @@ import pymeshlab
 import numpy as np
 
 ### Constants ###
+txt =".txt"
+mesh_ext = [".obj"]
 colors = {
     0: ["blue", (0.2549019607843137, 0.4117647058823529, 0.8823529411764706, 1)],
     1: ["violet", (0.5411764705882353, 0.16862745098039217, 0.8862745098039215, 1)],
@@ -49,8 +51,10 @@ def reconstruct_mesh(path, mesh_name = "reconstructed_mesh"):
 
     # add all face index and segment number data to face_map and add the segments to the MeshSet
     for segmentation_dir in sorted(os.listdir(path)):
+        # print(f"[reconst] >> {path}/{segmentation_dir}")
         if not os.path.isdir(f"{path}/{segmentation_dir}"): continue
         for segment_file in os.listdir(f"{path}/{segmentation_dir}"):
+            # print(f"[reconst.seg] >> {path}/{segmentation_dir}")
             segment_name, segment_ext = os.path.splitext(segment_file)
             if segment_ext in mesh_ext:
                 ms.load_new_mesh(f"{path}/{segmentation_dir}/{segment_file}")
@@ -66,6 +70,7 @@ def reconstruct_mesh(path, mesh_name = "reconstructed_mesh"):
     vert_map = {}
     vertices = []
     faces = np.zeros((len(face_map), 3))
+    face_segments = np.zeros((len(face_map),))
     f_color_matrix = np.zeros((len(face_map), 4))
     
     for i, mesh in enumerate(ms):
@@ -76,12 +81,19 @@ def reconstruct_mesh(path, mesh_name = "reconstructed_mesh"):
                     vert_map[tuple(vertex_matrix[v])] = len(vert_map)
                     vertices.append(vertex_matrix[v])
                 face[k] = vert_map[tuple(vertex_matrix[v])]             
-                f = face_map[(j, i)]
-                faces[f] = face
-                f_color_matrix[f] = colors[i][1]   
+            f = face_map[(j, i)]
+            face_segments[f] = i
+            faces[f] = face
+            f_color_matrix[f] = colors[i][1]   
     
     vertices = np.array(vertices)
-    new_mesh = pymeshlab.Mesh(vertices, faces, f_color_matrix=f_color_matrix)
+    new_mesh = pymeshlab.Mesh(vertex_matrix=vertices, face_matrix=faces, f_color_matrix=f_color_matrix)
 
     ms.add_mesh(new_mesh)
     ms.save_current_mesh(f"{path}/{mesh_name}.obj")
+
+    return new_mesh, face_segments
+
+# if __name__ == "__main__":
+#     mesh_dir = "/home/ubuntu/segmented_models/3d_printed_mechanical_clock_with_anchor_escapement_328569/component_2_crank_gear_reduction/5_segmentation"
+#     new_mesh, face_segments = reconstruct_mesh(mesh_dir, mesh_name = "reconstructed_mesh")
