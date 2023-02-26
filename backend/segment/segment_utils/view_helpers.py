@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 import pathlib
 import pymeshlab
 import threading
@@ -104,10 +105,11 @@ def segment_mesh(mesh, K, collapsed = True, parallelize = False, parent_dir = de
     if parallelize:
         for i, k in enumerate(K):
             def f(args):
-                vertices, faces, mesh_graph, collapsed, k, eigen_vectors = args
+                vertices, faces, mesh_graph, collapsed, k, eigen_vectors, component_dir = args
+
                 _, labels = kmeans2(eigen_vectors, k, minit="++", iter=50)
                 if collapsed: labels = _unwrap_labels(mesh_graph, labels)
-                extract_segments(vertices, faces, labels)
+                extract_segments(vertices, faces, labels, k, component_dir)
                 all_labels.append(labels)
             new_thread = thread(i, f, [vertices, faces, mesh_graph, collapsed, k, eigen_vectors, parent_dir])
             new_thread.start()

@@ -45,7 +45,7 @@ def segment(request, *args, **kwargs):
         if remesh: mesh = _remesh(mesh)
         
         labels = segment_mesh(mesh, [k], collapsed = collapsed)
-        extract_segments(vertices, faces, labels[0])
+        extract_segments(vertices, faces, labels[0], [k])
 
         data['face_segments'] = labels[0]
         data['faces'] = list(mesh.face_matrix())
