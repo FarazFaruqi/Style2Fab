@@ -17,10 +17,15 @@ class MeshSelection_PT_Panel(Panel):
         """ Draws out the ui panel """
         layout = self.layout
 
-        layout.label(text="Mesh Directory")
+        layout.label(text=f"Mesh Directory")
+
         mesh_dir_col = layout.column()
         mesh_dir_row = mesh_dir_col.row()
         mesh_dir_row.prop(context.scene, "mesh_dir")
+
+        layout.label(text=f"Selected mesh {context.scene.mesh_name}")
+        layout.label(text=f"No. faces {context.scene.face_count}")
+        layout.label(text=f"No. vertices {context.scene.vertex_count}")
 
         edit_row = layout.row()
         edit_col = edit_row.column()

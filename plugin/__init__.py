@@ -13,7 +13,7 @@ import bpy
 from .panels.edit import Edit_PT_Panel
 from .panels.style import Style_PT_Panel
 from .panels.segment import Segment_PT_Panel
-from .panels.mesh_selection import MeshSelection_PT_Panel
+from .panels.fetch import MeshSelection_PT_Panel
 
 from .operators.edit import Edit_OT_Op
 from .operators.delete import Delete_OT_Op
@@ -80,6 +80,21 @@ props = {
     'mesh_dir': StringProperty(
         name = "", 
         default = "/home/ubuntu/fa3ds/backend/segment/segment_utils/models"
+    ),
+
+    'mesh_name': StringProperty(
+        name = "", 
+        default = ""
+    ),
+
+    'face_count': IntProperty(
+        name = "", 
+        default = 0
+    ),
+
+    'vertex_count': IntProperty(
+        name = "", 
+        default = 0
     ),
 
     'models': CollectionProperty(

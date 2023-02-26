@@ -57,6 +57,8 @@ def fetch(self, context, i):
 
         # Remove old mesh   
         remove_mesh(self, mesh_name)
+        context.scene.face_count = len(faces)
+        context.scene.vertex_count = len(vertices)
 
         # Add new mesh
         new_object = add_mesh(self, mesh_name, vertices, faces)

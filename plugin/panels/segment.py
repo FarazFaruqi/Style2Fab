@@ -18,7 +18,7 @@ class Segment_PT_Panel(Panel):
         layout = self.layout
         seg_col = layout.column()
         seg_row = seg_col.row()
-        seg_row.label(text="# segments:")
+        seg_row.label(text="No. segments:")
         seg_row.prop(context.scene, "num_segs")
 
         layout.operator("mesh.segment", icon = "PLUGIN")
@@ -27,6 +27,7 @@ class Segment_PT_Panel(Panel):
             for model in context.scene.models:
                 if not model.segmented: continue
                 layout.label(text=f"{model.name.capitalize()}")
+                layout.label(text=f"No. segments: {len(model.segments)}")
                 
                 # selected segment index
                 j = 0 
