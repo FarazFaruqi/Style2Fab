@@ -40,20 +40,20 @@ class Segment_OT_Op(bpy.types.Operator):
 
                 url = "http://0.0.0.0:8000/segment/"
 
-                modelId = None
+                meshId = None
                 for stored_models in context.scene.models: 
                     if stored_models.name.lower() == obj.name.lower(): 
-                        modelId = stored_models.id
+                        meshId = stored_models.id
                         break
 
-                data = json.dumps({'vertices': vertices, 'faces': faces, 'k': k, 'collapsed': True, 'remesh': False, 'meshId': modelId})
+                data = json.dumps({'vertices': vertices, 'faces': faces, 'k': k, 'collapsed': True, 'remesh': False, 'meshId': meshId})
 
                 try:
                     response = requests.post(url = url, json = data).json()
                     
                     faces = response['faces']
                     labels = response['labels']
-                    modelId = response['meshId']
+                    meshId = response['meshId']
                     vertices = response['vertices']
                     face_segments = response['faceSegments']
                     self.report({'INFO'}, f"Segmented mesh into {k} parts successfully!")
@@ -70,11 +70,12 @@ class Segment_OT_Op(bpy.types.Operator):
                     for stored_models in context.scene.models: 
                         if stored_models.name.lower() == mesh_name.lower(): 
                             model = stored_models
+                            model.id = meshId
                             break
                     else: 
                         model = context.scene.models.add()
                         model.name = mesh_name.lower()
-                        model.id = modelId
+                        model.id = meshId
                     model.segmented = True
 
                     assign_materials(new_object, k, face_segments, context, labels, model)

@@ -45,6 +45,7 @@ def fetch(self, context, i):
         response = requests.post(url = url, json = data).json()
         
         faces = response['faces']
+        meshId = response['meshId']
         labels = response['labels']
         vertices = response['vertices']
         face_segments = response['face_segments']
@@ -63,16 +64,18 @@ def fetch(self, context, i):
         # Add new mesh
         new_object = add_mesh(self, mesh_name, vertices, faces)
 
-        if labels is not None:
-            k = context.scene.num_segs
+        if face_segments is not None:
+            k = len(set(face_segments))
 
             for stored_models in context.scene.models: 
                 if stored_models.name == mesh_name.lower(): 
                     model = stored_models
+                    model.id = meshId
                     break
             else: 
                 model = context.scene.models.add()
                 model.name = mesh_name.lower()
+                model.id = meshId
             model.segmented = True
 
             assign_materials(new_object, k, face_segments, context, labels, model)

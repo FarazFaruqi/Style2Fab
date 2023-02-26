@@ -80,7 +80,7 @@ props = {
 
     'mesh_dir': StringProperty(
         name = "", 
-        default = "/home/ubuntu/fa3ds/backend/segment/segment_utils/models"
+        default = "/home/ubuntu/fa3ds/backend/results/segmented_models/model_1"
     ),
 
     'face_count': IntProperty(
