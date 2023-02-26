@@ -54,7 +54,6 @@ classes = (
     PrevSeg_OT_Op,
     NextSeg_OT_Op,
     UpdateLabels_OT_Op,
-    SelectSegment_OT_Op, 
     ShowModelInfoForm_OT_Op, 
     ShowModelInfoFunction_OT_Op, 
 
