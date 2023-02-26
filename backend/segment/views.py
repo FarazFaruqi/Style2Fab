@@ -16,6 +16,9 @@ from rest_framework.decorators import api_view
 from .segment_utils.view_helpers import segment_mesh, _remesh, extract_segments
 sys.setrecursionlimit(10000)
 
+### Global Constants ###
+default_models_dir = "/home/ubuntu/fa3ds/backend/results/segmented_models"
+
 @api_view(['POST'])
 def segment(request, *args, **kwargs):
     """
@@ -30,24 +33,33 @@ def segment(request, *args, **kwargs):
     """
     data = {}
     request = json.loads(request.data)
-    segment_fields = ["vertices", "faces", "k", "collapsed"]
+    segment_fields = ["vertices", "faces", "k", "collapsed", "meshId"]
     segment_status   = _is_subset(segment_fields, request.keys())
     
     if segment_status == status.HTTP_200_OK:
         # Step 0 (Initialization of variables)
         k = request['k']
         remesh = request['remesh']
+        mesh_id = request['meshId']
         collapsed = request['collapsed']
         faces = np.array(request['faces'])
         vertices = np.array(request['vertices'])
         
+        if mesh_id is None: 
+            mesh_id = len(os.listdir(default_models_dir))
+            parent_dir = f"{default_models_dir}/model_{mesh_id}"
+            os.mkdir(parent_dir)
+        parent_dir = f"{default_models_dir}/model_{mesh_id}"
+
         mesh = pymeshlab.Mesh(vertices, faces)
         if remesh: mesh = _remesh(mesh)
         
         labels = segment_mesh(mesh, [k], collapsed = collapsed)
-        # extract_segments(vertices, faces, labels[0], [k])
 
-        data['face_segments'] = labels[0]
+        extract_segments(vertices, faces, labels[0], k, parent_dir = parent_dir)
+
+        data['meshId'] = f"{mesh_id}"
+        data['faceSegments'] = labels[0]
         data['faces'] = list(mesh.face_matrix())
         data['vertices'] = list(mesh.vertex_matrix())
         data['labels'] = [

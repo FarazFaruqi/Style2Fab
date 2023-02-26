@@ -22,4 +22,5 @@ urlpatterns = [
     path('fetch/', include('fetch.urls')),
     path('segment/', include('segment.urls')),
     path('stylize/', include('stylize.urls')),
+    path('classify/', include('classify.urls')),
 ]
