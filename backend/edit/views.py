@@ -13,6 +13,7 @@ from scipy.cluster.vq import kmeans2
 from utils.view_helpers import _is_subset
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from segment.segment_utils.edge import edge_collapse
 from segment.segment_utils.mesh_graph import MeshGraph
 from segment.segment_utils.view_helpers import _remesh
 sys.setrecursionlimit(10000)
@@ -48,10 +49,14 @@ def edit(request, *args, **kwargs):
             mesh = _remesh(mesh)
             faces = list(mesh.face_matrix())
             vertices = list(mesh.vertex_matrix())
-        if mode == "collapse": 
+        if mode == "face collapse": 
             mesh_graph = MeshGraph(mesh)
             vertices, faces = mesh_graph.get_collapsed()
-        
+        elif mode == "edge collapse":
+            mesh = edge_collapse(mesh, p=0.5)
+            faces = list(mesh.face_matrix())
+            vertices = list(mesh.vertex_matrix())
+                
         data['faces'] = faces
         data['vertices'] = vertices
         

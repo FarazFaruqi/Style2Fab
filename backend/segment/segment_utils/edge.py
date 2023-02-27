@@ -1,3 +1,5 @@
+import pymeshlab
+
 class Edge():
     """ A simple edge where two edges are equal if they are equivalent sets """
     def __init__(self, v1, v2) -> None:
@@ -46,5 +48,37 @@ def get_edges(mesh):
     
     return edges
     
+def edge_collapse(mesh, p):
+    """
+    Collapses a mesh by collapsing its edges
 
+    Inputs  
+        :mesh: <pymeshlab> Mesh to be collapsed
+    
+    Outputs
+        :returns: collapsed mesh with only e new edges
+    """
+    print(f"[faces] >> {mesh.face_matrix().shape}")
+    print(f"[verts] >> {mesh.vertex_matrix().shape}")
+
+    ms = pymeshlab.MeshSet()
+    ms.add_mesh(mesh)
+    ms.meshing_decimation_quadric_edge_collapse(targetperc=p)
+    for i in ms: pass
+    mesh = ms.current_mesh()
+    
+    faces = mesh.face_matrix()
+    vertices = mesh.vertex_matrix()
+
+    print(f"[collapsed faces] >> {faces.shape}")
+    print(f"[collapsed verts] >> {vertices.shape}")
+
+    return mesh
+
+# if __name__ == "__main__":
+#     mesh_path = "/home/ubuntu/fa3ds/backend/segment/segment_utils/ui_models/vase.obj"
+#     ms = pymeshlab.MeshSet()
+#     ms.load_new_mesh(mesh_path)
+#     mesh = ms.current_mesh()
+#     edge_collapse(mesh, 0.5)
 
