@@ -101,7 +101,8 @@ props = {
         name = "mode", 
         items = [
             ("remesh", "remesh", ""),
-            ("collapse", "collapse", ""),
+            ("face collapse", "face collapse", ""),
+            ("edge collapse", "edge collapse", ""),
         ],
     ),
 }
