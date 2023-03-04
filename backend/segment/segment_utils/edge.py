@@ -48,7 +48,7 @@ def get_edges(mesh):
     
     return edges
     
-def edge_collapse(mesh, p):
+def edge_collapse(mesh, face_count):
     """
     Collapses a mesh by collapsing its edges
 
@@ -63,7 +63,7 @@ def edge_collapse(mesh, p):
 
     ms = pymeshlab.MeshSet()
     ms.add_mesh(mesh)
-    ms.meshing_decimation_quadric_edge_collapse(targetperc=p)
+    ms.meshing_decimation_quadric_edge_collapse(targetfacenum=face_count)
     for i in ms: pass
     mesh = ms.current_mesh()
     
