@@ -39,7 +39,7 @@ class Annotate_OT_Op(bpy.types.Operator):
                         if segment.is_form: labels.append(form)
                         elif segment.is_func: labels.append(func)
                         
-                    data = json.dumps({'meshId': stored_model.id, 'labels': labels})
+                    data = json.dumps({'meshId': stored_model.id, 'labels': labels, 'meshDir': context.scene.mesh_dir})
 
                     try:
                         response = requests.post(url = url, json = data).json()
