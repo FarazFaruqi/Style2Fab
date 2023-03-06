@@ -53,7 +53,7 @@ def edit(request, *args, **kwargs):
             mesh_graph = MeshGraph(mesh)
             vertices, faces = mesh_graph.get_collapsed()
         elif mode == "edge collapse":
-            mesh = edge_collapse(mesh, f=5000)
+            mesh = edge_collapse(mesh, face_count=15000)
             faces = list(mesh.face_matrix())
             vertices = list(mesh.vertex_matrix())
                 
