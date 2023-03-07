@@ -209,7 +209,6 @@ def _save_as_wrl(faces, vertices, path):
     # print("--- Done ---")
 
 if __name__ == "__main__":
-    
     mesh_path_1 = "/home/ubuntu/fa3ds/backend/assemble/Experiments/model_20/5_segmentation/segment_1.0/segment_1.0.obj"
     mesh_path_2 = "/home/ubuntu/fa3ds/backend/assemble/Experiments/model_20/5_segmentation/segment_2.0/segment_2.0.obj"
     ms = pymeshlab.MeshSet()
