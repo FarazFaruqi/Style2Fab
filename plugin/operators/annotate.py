@@ -33,7 +33,7 @@ class Annotate_OT_Op(bpy.types.Operator):
                     labels = []
                     for segment in stored_model.segments:
                         if segment.is_form and segment.is_func: 
-                            self.reprot({'ERROR'}, f"Segment can not be both function and form!")
+                            self.report({'ERROR'}, f"Segment can not be both function and form!")
                             return {'FINISHED'}
                          
                         if segment.is_form: labels.append(form)
