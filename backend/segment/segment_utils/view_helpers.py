@@ -83,20 +83,8 @@ def segment_mesh(mesh, K, collapsed = True, parallelize = False, extract = True,
 
     # Step 4
     eigen_values, eigen_vectors = scipy.sparse.linalg.eigsh(laplacian) # Eigen values here can be used to get the value of k  = num < epsilon (0.5)
-    # eigen_values_full, eigen_vector_full = scipy.linalg.eigh(laplacian)
-    # eigen_values_full /= max([abs(v) for v in eigen_values_full])
-    # # eigen_values_full = abs(eigen_values_full)
-    # # eigen_values_full.sort()
-    # difs = [
-    #     abs(eigen_values_full[i] - eigen_values_full[i - 1])
-    #     for i in range(1, len(eigen_values_full)) 
-    #     if abs(eigen_values_full[i] - eigen_values_full[i - 1]) >= 0.02
-    # ]
-    # difs.sort(reverse=True)
-    # print(f"Should be segmented into {len(difs)} segments")
     eigen_vectors /= np.linalg.norm(eigen_vectors, axis=1)[:,None]
-    # plt.scatter([i for i in range(len(eigen_values_full))], eigen_values_full)
-    # plt.savefig(f"{results_dir}/eigenvectors_full.png")
+
     # Step 5
     all_labels = []
     faces = mesh.face_matrix()
@@ -104,10 +92,11 @@ def segment_mesh(mesh, K, collapsed = True, parallelize = False, extract = True,
 
     if parallelize:
         for i, k in enumerate(K):
+            print(f"Should be segmented into {k} segments")
             def f(args):
                 vertices, faces, mesh_graph, collapsed, k, eigen_vectors, extract, component_dir = args
 
-                _, labels = kmeans2(eigen_vectors, k, minit="++", iter=50)
+                _, labels = kmeans2(eigen_vectors, k, minit="++", iter=50) # changed k => number_of_segments for automatic segmentation
                 if collapsed: labels = _unwrap_labels(mesh_graph, labels)
                 if extract: extract_segments(vertices, faces, labels, k, component_dir)
                 all_labels.append(labels)

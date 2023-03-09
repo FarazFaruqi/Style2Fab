@@ -37,7 +37,8 @@ def annotate(request, *args, **kwargs):
         # Step 0 (Initialization of variables)
         labels = request['labels']
         mesh_id = request['meshId']
-        labels_path = f"{default_models_dir}/model_{mesh_id}/labels_{len(labels)}.csv"
+        mesh_dir = request['meshDir']
+        labels_path = f"{mesh_dir}/labels_{len(labels)}.csv"
         
         df = pd.DataFrame([[mesh_id, i ,labels[i]] for i in range(len(labels))], columns=["meshId", "segmentNo", "label"])
         df.to_csv(labels_path, encoding='utf-8', index=False)
