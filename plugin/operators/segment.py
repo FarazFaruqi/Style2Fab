@@ -51,6 +51,7 @@ class Segment_OT_Op(bpy.types.Operator):
                 try:
                     response = requests.post(url = url, json = data).json()
                     
+                    k = response['k']
                     faces = response['faces']
                     labels = response['labels']
                     meshId = response['meshId']

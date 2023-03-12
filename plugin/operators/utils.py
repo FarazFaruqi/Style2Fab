@@ -8,7 +8,8 @@ import requests
 ### Constants ###
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 with open(f"{base_dir}/settings.json", 'r') as ip_file:  
-    domain = f"http://{json.load(ip_file)['ip']}"
+    ip_file = json.load(ip_file)
+    domain = f"http://{ip_file['ip']}:{ip_file['port']}"
 
 report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
 with open(f"{base_dir}/colors.json", "rb") as colors_file:
