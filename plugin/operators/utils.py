@@ -2,10 +2,13 @@ import os
 import bpy
 import json
 import bmesh
+import json
 import requests
 
 ### Constants ###
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+with open(f"{base_dir}/settings.json", 'r') as ip_file:  
+    domain = f"http://{json.load(ip_file)['ip']}"
 
 report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
 with open(f"{base_dir}/colors.json", "rb") as colors_file:
@@ -38,7 +41,7 @@ def fetch(self, context, i):
     mesh_dir = context.scene.mesh_dir
 
     mesh_name = "Loaded"
-    url = "http://ec2-54-87-54-152.compute-1.amazonaws.com/fetch/"
+    url = f"{domain}/fetch/"
 
     data = json.dumps({'i': i, 'mesh_dir': mesh_dir})
     try:

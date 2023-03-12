@@ -2,7 +2,7 @@ import bpy
 import json
 import bmesh
 import requests 
-from .utils import report
+from .utils import report, domain
 
 ### Constants ###
 form = "Form"
@@ -24,7 +24,7 @@ class Annotate_OT_Op(bpy.types.Operator):
 
     def execute(self, context):
         """ Executes the annotation """
-        url = "http://http://ec2-54-87-54-152.compute-1.amazonaws.com/classify/annotate"
+        url = f"{domain}/classify/annotate"
         objs = [obj for obj in bpy.context.selected_objects]
         for obj in objs:
             for stored_model in context.scene.models: 

@@ -3,7 +3,7 @@ import bpy
 import json
 import bmesh
 import requests 
-from .utils import remove_mesh, add_mesh, assign_materials
+from .utils import remove_mesh, add_mesh, assign_materials, domain
 
 ### Constants ###
 report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
@@ -38,7 +38,7 @@ class Segment_OT_Op(bpy.types.Operator):
                 faces = []
                 for face in obj.data.polygons: faces.append([i for i in face.vertices])
 
-                url = "http://ec2-54-87-54-152.compute-1.amazonaws.com/segment/"
+                url = f"{domain}/segment/"
 
                 meshId = None
                 for stored_models in context.scene.models: 
