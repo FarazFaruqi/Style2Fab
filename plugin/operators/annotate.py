@@ -24,7 +24,7 @@ class Annotate_OT_Op(bpy.types.Operator):
 
     def execute(self, context):
         """ Executes the annotation """
-        url = "http://0.0.0.0:8000/classify/annotate"
+        url = "http://http://ec2-54-87-54-152.compute-1.amazonaws.com/classify/annotate"
         objs = [obj for obj in bpy.context.selected_objects]
         for obj in objs:
             for stored_model in context.scene.models: 

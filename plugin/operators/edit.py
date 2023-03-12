@@ -38,7 +38,7 @@ class Edit_OT_Op(bpy.types.Operator):
                 faces = []
                 for face in obj.data.polygons: faces.append([i for i in face.vertices])
 
-                url = "http://0.0.0.0:8000/edit/"
+                url = "http://ec2-54-87-54-152.compute-1.amazonaws.com/edit/"
 
                 data = json.dumps({'vertices': vertices, 'faces': faces, 'mode': mode})
 

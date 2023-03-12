@@ -37,7 +37,7 @@ class Stylize_OT_Op(bpy.types.Operator):
         for i, vertex in enumerate(mesh.verts):
             if vertex.select: selection.append(i)
 
-        url = "http://0.0.0.0:8000/stylize/"
+        url = "http://ec2-54-87-54-152.compute-1.amazonaws.com/stylize/"
         
         data = json.dumps({'vertices': vertices, 'faces': faces, 'prompt': prompt, 'selection': selection, 'remesh': False})
         

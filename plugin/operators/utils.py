@@ -38,7 +38,7 @@ def fetch(self, context, i):
     mesh_dir = context.scene.mesh_dir
 
     mesh_name = "Loaded"
-    url = "http://0.0.0.0:8000/fetch/"
+    url = "http://ec2-54-87-54-152.compute-1.amazonaws.com/fetch/"
 
     data = json.dumps({'i': i, 'mesh_dir': mesh_dir})
     try:
