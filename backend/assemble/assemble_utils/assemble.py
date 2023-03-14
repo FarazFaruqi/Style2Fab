@@ -1,6 +1,7 @@
 import re
 import pymeshlab
 import numpy as np
+from .heuristics import check_heuristics
 from itertools import chain, combinations
 
 ### Global Constants ###
@@ -96,6 +97,8 @@ def generate_power_set(mesh_set):
         if len(sub_set) == 0: continue
         ms = pymeshlab.MeshSet()
         for j in sub_set: ms.add_mesh(mesh_set[j])
+        if not check_heuristics(ms): continue
+
         name = replace_mult(f"assembled_{sub_set}", [")", "(", ",", " "], ["", "", "_", ""])
 
         power_mesh_set.add_mesh(assemble(ms, name))

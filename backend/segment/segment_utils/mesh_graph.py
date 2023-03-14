@@ -27,8 +27,9 @@ class MeshGraph():
     Representation Exposure:
         - access granted to all attributes
     """
-    def __init__(self, mesh) -> None:
+    def __init__(self, mesh, collapsed = False) -> None:
         self.mesh = mesh
+        self.collapsed = collapsed
         self.faces = mesh.face_matrix()
         self.vertices = mesh.vertex_matrix()
 
@@ -40,7 +41,7 @@ class MeshGraph():
         self.face_normals = mesh_set.current_mesh().face_normal_matrix()
         self.m = self.faces.shape[0]
 
-        print("----- Computing face adj ...")
+        print("Computing face adj ...")
         self.edge_to_faces = {}
         for i in tqdm(range(self.m)):
             v1, v2, v3 = self.faces[i]
@@ -52,7 +53,7 @@ class MeshGraph():
                 try: self.edge_to_faces[edge].append(i)
                 except: self.edge_to_faces[edge] = [i]
         
-        print("------ Computing avg_geodisc and avg_ang_dist matrix + face_objs graph ...")
+        print("Computing avg_geodisc and avg_ang_dist matrix + face_objs graph ...")
         n = 0
         self.geodisc = np.zeros((self.m, self.m))
         self.ang_dist = np.zeros((self.m, self.m))
@@ -65,10 +66,11 @@ class MeshGraph():
             # Updating graph representation
             self.face_objs[i].add_adj_face(self.face_objs[j])
             self.face_objs[j].add_adj_face(self.face_objs[i])
-
-        self.graph = self.face_objs[0].collapse(k = 1)
-        self.collapsed_map = self.graph.map({})
-        self.collapsed_m = self.graph.__len__(set())
+        
+        if self.collapsed:
+            self.graph = self.face_objs[0].collapse(k = 1)
+            self.collapsed_map = self.graph.map({})
+            self.collapsed_m = self.graph.__len__(set())
 
         for edge, adj in tqdm(self.edge_to_faces.items()):
             if len(adj) != 2: continue
@@ -88,47 +90,53 @@ class MeshGraph():
         
         self.avg_geodisc = self.geodisc.sum() / n
         self.avg_ang_dist = self.ang_dist.sum() / n
-  
-        self.collapsed_geodisc = np.zeros((self.collapsed_m, self.collapsed_m))
-        self.collapsed_ang_dist = np.zeros((self.collapsed_m, self.collapsed_m))
+
+        if self.collapsed:
+            self.collapsed_geodisc = np.zeros((self.collapsed_m, self.collapsed_m))
+            self.collapsed_ang_dist = np.zeros((self.collapsed_m, self.collapsed_m))
 
         for edge, adj in tqdm(self.edge_to_faces.items()):
             if len(adj) != 2: continue
             i, j = adj
-            i_prime_1, i_prime_2 = self.collapsed_map[i]
-            j_prime_1, j_prime_2 = self.collapsed_map[j]
+
+            if self.collapsed:
+                i_prime_1, i_prime_2 = self.collapsed_map[i]
+                j_prime_1, j_prime_2 = self.collapsed_map[j]
             
-            geodisc = self.geodisc[i_prime_1][i] + self.geodisc[i][j_prime_1] + self.geodisc[j_prime_1][j]
-            ang_dist = self.__collapsed_ang_dist(i_prime_1, j_prime_1)
+                geodisc = self.geodisc[i_prime_1][i] + self.geodisc[i][j_prime_1] + self.geodisc[j_prime_1][j]
+                ang_dist = self.__collapsed_ang_dist(i_prime_1, j_prime_1)
 
-            self.collapsed_geodisc[i_prime_2][j_prime_2] = geodisc
-            self.collapsed_ang_dist[i_prime_2][j_prime_2] = ang_dist
+                self.collapsed_geodisc[i_prime_2][j_prime_2] = geodisc
+                self.collapsed_ang_dist[i_prime_2][j_prime_2] = ang_dist
 
-            self.collapsed_geodisc[j_prime_2][i_prime_2] = geodisc
-            self.collapsed_ang_dist[j_prime_2][i_prime_2] = ang_dist
+                self.collapsed_geodisc[j_prime_2][i_prime_2] = geodisc
+                self.collapsed_ang_dist[j_prime_2][i_prime_2] = ang_dist
 
-        self.avg_collapsed_geodisc = self.collapsed_geodisc.sum() / self.collapsed_geodisc.shape[0]
-        self.avg_collapsed_ang_dist = self.collapsed_ang_dist.sum() / self.collapsed_ang_dist.shape[0]
+        if self.collapsed:
+            self.avg_collapsed_geodisc = self.collapsed_geodisc.sum() / self.collapsed_geodisc.shape[0]
+            self.avg_collapsed_ang_dist = self.collapsed_ang_dist.sum() / self.collapsed_ang_dist.shape[0]
 
         print(f"[avg_geodisc] >> {self.avg_geodisc}")
         print(f"[avg_ang_dist] >> {self.avg_ang_dist}")
 
-        print(f"[avg_collapsed_geodisc] >> {self.avg_collapsed_geodisc}")
-        print(f"[avg_collapsed_ang_dist] >> {self.avg_collapsed_ang_dist}")
+        if self.collapsed:
+            print(f"[avg_collapsed_geodisc] >> {self.avg_collapsed_geodisc}")
+            print(f"[avg_collapsed_ang_dist] >> {self.avg_collapsed_ang_dist}")
         
         self.__construct_adj_matrix()
         self.__construct_degree_matrix()
 
-        self.__construct_collapsed_adj_matrix()
-        self.__construct_collapsed_degree_matrix()
+        if self.collapsed:
+            self.__construct_collapsed_adj_matrix()
+            self.__construct_collapsed_degree_matrix()
     
-    def similarity_matrix(self, k = 1, collapsed = True):
+    def similarity_matrix(self, k = 1, collapsed = False):
         """
         Computes the similairty matrix of the graph which is of size m // k x m // k
         Inputs
             :k: <int> condensation factor
         """
-        print("------ Computing similarity matrix ...")
+        print("Computing similarity matrix ...")
         # Convert matrix to linked list graph and use parent/child relationship in order to collapse graph by factor of k
         start_time = time()
         if collapsed:
@@ -170,12 +178,12 @@ class MeshGraph():
     ### Helper Methods ###
     def __construct_adj_matrix(self):
         """ Construct the m x m adjacency matrix """
-        print("------ Computing face graph adjacency matrix ...")
+        print("Computing face graph adjacency matrix ...")
         self.adj_matrix = self.__weights(delta = 0.03)
     
     def __construct_collapsed_adj_matrix(self):
         """ Construct the m x m adjacency matrix """
-        print("------ Computing collapsed face graph adjacency matrix ...")
+        print("Computing collapsed face graph adjacency matrix ...")
         self.collapsed_adj_matrix = self.__collapsed_weights(delta = 0.03)
 
     def __weights(self, delta = 0.03):

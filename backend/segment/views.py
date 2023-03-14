@@ -6,6 +6,7 @@ import sys
 import json
 import pymeshlab
 import numpy as np
+from time import time
 import scipy.sparse.linalg
 from rest_framework import status
 from django.shortcuts import render
@@ -52,14 +53,16 @@ def segment(request, *args, **kwargs):
         parent_dir = f"{default_models_dir}/model_{mesh_id}"
 
         mesh = pymeshlab.Mesh(vertices, faces)
-        if remesh: mesh = _remesh(mesh)
-        
-        labels = segment_mesh(mesh, [k], collapsed = collapsed)
+        mesh = _remesh(mesh)
 
-        extract_segments(vertices, faces, labels[0], k, parent_dir = parent_dir)
+        start_time = time()
+        k, labels = segment_mesh(mesh, None, face_count = 15000, collapsed = collapsed)
 
+        # extract_segments(vertices, faces, labels, k, time() - start_time, parent_dir = parent_dir)
+
+        data['k'] = k
         data['meshId'] = f"{mesh_id}"
-        data['faceSegments'] = labels[0]
+        data['faceSegments'] = labels
         data['faces'] = list(mesh.face_matrix())
         data['vertices'] = list(mesh.vertex_matrix())
         data['labels'] = [

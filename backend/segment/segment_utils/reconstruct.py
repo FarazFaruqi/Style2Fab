@@ -90,10 +90,10 @@ def reconstruct_mesh(path, mesh_name = "reconstructed_mesh"):
     new_mesh = pymeshlab.Mesh(vertex_matrix=vertices, face_matrix=faces, f_color_matrix=f_color_matrix)
 
     ms.add_mesh(new_mesh)
-    ms.save_current_mesh(f"{path}/{mesh_name}.obj")
+    ms.save_current_mesh(f"{path}/{mesh_name}_semi.obj")
 
     return new_mesh, face_segments
 
-# if __name__ == "__main__":
-#     mesh_dir = "/home/ubuntu/segmented_models/3d_printed_mechanical_clock_with_anchor_escapement_328569/component_2_crank_gear_reduction/5_segmentation"
-#     new_mesh, face_segments = reconstruct_mesh(mesh_dir, mesh_name = "reconstructed_mesh")
+if __name__ == "__main__":
+    mesh_dir = "/home/ubuntu/fa3ds/backend/results/api_segmented_models/model_0/8_segmentation"
+    new_mesh, face_segments = reconstruct_mesh(mesh_dir, mesh_name = "reconstructed_mesh")
