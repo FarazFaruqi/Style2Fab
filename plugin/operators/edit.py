@@ -2,7 +2,7 @@ import bpy
 import json
 import bmesh
 import requests 
-from .utils import remove_mesh, add_mesh
+from .utils import remove_mesh, add_mesh, domain
 
 ### Constants ###
 report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
@@ -38,7 +38,7 @@ class Edit_OT_Op(bpy.types.Operator):
                 faces = []
                 for face in obj.data.polygons: faces.append([i for i in face.vertices])
 
-                url = "http://0.0.0.0:8000/edit/"
+                url = f"{domain}/edit/"
 
                 data = json.dumps({'vertices': vertices, 'faces': faces, 'mode': mode})
 

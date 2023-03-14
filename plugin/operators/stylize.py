@@ -2,7 +2,7 @@ import bpy
 import json
 import bmesh
 import requests 
-from .utils import report
+from .utils import report, domain
 
 ### Constants ###
 
@@ -37,7 +37,7 @@ class Stylize_OT_Op(bpy.types.Operator):
         for i, vertex in enumerate(mesh.verts):
             if vertex.select: selection.append(i)
 
-        url = "http://0.0.0.0:8000/stylize/"
+        url = f"{domain}/stylize/"
         
         data = json.dumps({'vertices': vertices, 'faces': faces, 'prompt': prompt, 'selection': selection, 'remesh': False})
         

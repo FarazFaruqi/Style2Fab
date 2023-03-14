@@ -3,7 +3,7 @@ import bpy
 import json
 import bmesh
 import requests 
-from .utils import remove_mesh, add_mesh, assign_materials
+from .utils import remove_mesh, add_mesh, assign_materials, domain
 
 ### Constants ###
 report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
@@ -38,7 +38,7 @@ class Segment_OT_Op(bpy.types.Operator):
                 faces = []
                 for face in obj.data.polygons: faces.append([i for i in face.vertices])
 
-                url = "http://0.0.0.0:8000/segment/"
+                url = f"{domain}/segment/"
 
                 meshId = None
                 for stored_models in context.scene.models: 
@@ -51,6 +51,7 @@ class Segment_OT_Op(bpy.types.Operator):
                 try:
                     response = requests.post(url = url, json = data).json()
                     
+                    k = response['k']
                     faces = response['faces']
                     labels = response['labels']
                     meshId = response['meshId']
