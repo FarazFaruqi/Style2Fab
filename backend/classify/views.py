@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 ### Global Constants ###
-default_models_dir = "/home/ubuntu/fa3ds/backend/results/segmented_models"
+default_models_dir = "/home/ubuntu/fa3ds/backend/results/api_segmented_models"
 
 @api_view(['POST'])
 def annotate(request, *args, **kwargs):
@@ -37,8 +37,8 @@ def annotate(request, *args, **kwargs):
         # Step 0 (Initialization of variables)
         labels = request['labels']
         mesh_id = request['meshId']
-        mesh_dir = request['meshDir']
-        labels_path = f"{mesh_dir}/labels_{len(labels)}.csv"
+        mesh_dir = request['meshDir'] if 'meshDir' in request else default_models_dir
+        labels_path = f"{mesh_dir}/model_{mesh_id}/labels_{len(labels)}.csv"
         
         df = pd.DataFrame([[mesh_id, i ,labels[i]] for i in range(len(labels))], columns=["meshId", "segmentNo", "label"])
         df.to_csv(labels_path, encoding='utf-8', index=False)
