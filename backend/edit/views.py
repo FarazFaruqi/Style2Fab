@@ -50,10 +50,10 @@ def edit(request, *args, **kwargs):
             faces = list(mesh.face_matrix())
             vertices = list(mesh.vertex_matrix())
         if mode == "face collapse": 
-            mesh_graph = MeshGraph(mesh)
+            mesh_graph = MeshGraph(mesh, collapsed = True)
             vertices, faces = mesh_graph.get_collapsed()
         elif mode == "edge collapse":
-            mesh = edge_collapse(mesh, face_count=15000)
+            mesh = edge_collapse(mesh, face_count=2000)
             faces = list(mesh.face_matrix())
             vertices = list(mesh.vertex_matrix())
                 
