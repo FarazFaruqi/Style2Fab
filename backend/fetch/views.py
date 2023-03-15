@@ -82,7 +82,7 @@ def fetch(request, *args, **kwargs):
         data['faces'] = faces
         data['vertices'] = vertices
         data['face_segments'] = face_segments
-        data['meshId'] = mesh_path.split("/")[-2].split("_")[-1]
+        data['meshId'] = mesh_path
         data['labels'] = [
             "function", "function", "form", "function", "function", "form", "function", "form", "form", "function", "form", "function", 
             "function", "function", "form", "function", "function", "form", "function", "form", "form", "function", "form", "function",
