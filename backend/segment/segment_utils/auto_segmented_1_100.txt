@@ -1,0 +1,3 @@
+/home/ubuntu/fa3ds/backend/results/auto_segmented_models/first_100/files_spirograph_905849/spirographgear11
+/home/ubuntu/fa3ds/backend/results/auto_segmented_models/first_100/files_micro_catapult_1763518/micro_catapult_v1.1
+/home/ubuntu/fa3ds/backend/results/auto_segmented_models/first_100/files_shishi_odoshi__deer_scarer__japanese_water_fountain_-_fully_working_2875176/japanese_fountain_supply_line_rev_d

@@ -10,9 +10,10 @@ import numpy as np
 import pandas as pd
 from time import time
 import scipy.sparse.linalg
-from edge import edge_collapse
+from .helpers import timeout
+from .edge import edge_collapse
 import matplotlib.pyplot as plt
-from mesh_graph import MeshGraph
+from .mesh_graph import MeshGraph
 from scipy.cluster.vq import kmeans2
 from sklearn.decomposition import PCA
 
@@ -42,9 +43,10 @@ colors = [
     {"centroid": "red", "points": "blue"},
 ]
 results_dir = "/home/ubuntu/fa3ds/backend/results"
-default_models_dir = "/home/ubuntu/fa3ds/backend/results/auto_segmented_models"
+default_models_dir = "/home/ubuntu/fa3ds/backend/results/auto_segmented_models/first_100"
 report = lambda error: f"\033[31m----------------------------\n{error}\n----------------------------\033[0m\n"
 
+@timeout(300)
 def segment_mesh(mesh, k, face_count, collapsed = False, parallelize = False, extract = False, parent_dir = default_models_dir, mesh_dir = default_models_dir):
     """
     Segments a mesh as follows:
@@ -95,6 +97,7 @@ def segment_mesh(mesh, k, face_count, collapsed = False, parallelize = False, ex
     laplacian = sqrt_degree.T * similarity_matrix.T * sqrt_degree
 
     if k is None:
+        print("Predicting segment count ...")
         eigen_values_full, _ = scipy.linalg.eigh(laplacian) 
         eigen_values_full = np.sort(eigen_values_full)
         eigen_std = np.std(eigen_values_full)
@@ -269,7 +272,9 @@ def _remesh(mesh, save_path = None):
 
     ms.compute_matrix_from_scaling_or_normalization(scalecenter='origin', unitflag=True, uniformflag=True)
     targetlen_given = 1.5
-    while True: 
+
+    attempts = 10
+    while attempts > 0: 
         ms.meshing_isotropic_explicit_remeshing(iterations=4, targetlen=pymeshlab.Percentage(targetlen_given))
         if(ms.current_mesh().face_matrix().shape[0] < 24000):
             print(f"[remesh] >> Optimizing resolution {ms.current_mesh().face_matrix().shape[0]}...")
@@ -280,12 +285,13 @@ def _remesh(mesh, save_path = None):
         else:
             print(f"[remesh] >> Optimization completed. Current resolution: {ms.current_mesh().face_matrix().shape[0]}... ")
             break
+        attempts -= 1
 
     for i in ms: pass
     if save_path is not None: ms.save_current_mesh(save_path)
     return ms.current_mesh()
 
-def _construct_dir(dir_name, overwrite = "y"):
+def _construct_dir(dir_name, overwrite = None):
     """
     Constructs a new directory with name dir_name, if one does not exist
     else it promopts user to over-write
@@ -353,7 +359,10 @@ def batch_seg(meshes):
                 if mesh_ext.lower() != ".obj": continue
 
                 mesh_path = f"{mesh_dir}/{file}"
-                component_dir = f"{mesh_save_dir}/component_{i}_{mesh_name.lower()}"
+                component_dir = f"{mesh_save_dir}/{mesh_name.lower()}"
+                if(os.path.exists(component_dir)):
+                    print("Model already segmented. Moving to the next one...")
+                    continue
                 _construct_dir(component_dir)
     
                 collapsed = True
@@ -377,13 +386,13 @@ def batch_seg(meshes):
                         # res_dir = f"{component_dir}/res_{res}" # For component based segmentation
                     # res_dir = f"{component_dir}" # For single model segmentation
                     # _construct_dir(res_dir)
-                    segment_mesh(mesh, None, res, collapsed = collapsed, parallelize = False, parent_dir = component_dir, mesh_dir = component_dir)
+                    segment_mesh(mesh, None, res, collapsed = collapsed, parallelize = False, extract = True, parent_dir = component_dir, mesh_dir = component_dir)
 
-                    with open("/home/ubuntu/fa3ds/backend/segment/segment_utils/auto_segmented.txt", "a") as segmented:
+                    with open("/home/ubuntu/fa3ds/backend/segment/segment_utils/auto_segmented_1_100.txt", "a") as segmented:
                         segmented.write(f"{component_dir}\n") 
                             
                 except Exception as error:
-                    with open("/home/ubuntu/fa3ds/backend/segment/segment_utils/auto_skipped.txt", "a") as skipped:
+                    with open("/home/ubuntu/fa3ds/backend/segment/segment_utils/auto_skipped_1_100.txt", "a") as skipped:
                         skipped.write(f"model_{component_dir.split('_')[-1]}\n")
                     if "info.csv" not in os.listdir(component_dir): _remove_dir(component_dir)
                     print(report(f"{traceback.format_exc()}\nSegmentation failed :("))
@@ -392,13 +401,13 @@ def batch_seg(meshes):
             _remove_dir(mesh_save_dir)
    
 if __name__ == "__main__":
-    mesh_base_dir = "/home/ubuntu/scraped_models/formative_models"
+    mesh_base_dir = "/home/ubuntu/scraped_models/first_100_models_files"
 
-    meshes = [["/home/ubuntu/scraped_models/formative_models", (25000, "formative_models")]]
-    # for _, mesh_dirs, files in os.walk(mesh_base_dir):
-    #     for mesh_dir in mesh_dirs:
-    #         mesh_name, mesh_ext = os.path.splitext(mesh_dir)
-    #         meshes.append([f"{mesh_base_dir}/{mesh_dir}", ([15000, 20000, 25000, 30000], mesh_name)])
-    #     break
+    meshes = []
+    for _, mesh_dirs, files in os.walk(mesh_base_dir):
+        for mesh_dir in mesh_dirs:
+            mesh_name, mesh_ext = os.path.splitext(mesh_dir)
+            meshes.append([f"{mesh_base_dir}/{mesh_dir}", ([25000], mesh_name.lower())])
+        break
     print(f"[info] >> Segmenting a total of {len(meshes)} meshes")
     batch_seg(meshes)

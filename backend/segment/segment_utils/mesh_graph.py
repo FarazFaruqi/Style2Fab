@@ -5,8 +5,8 @@ import pymeshlab
 import numpy as np
 from time import time
 from tqdm import tqdm
-from edge import Edge
-from face import Face
+from .edge import Edge
+from .face import Face
 sys.setrecursionlimit(10000)
 
 ### Global Constants ###
