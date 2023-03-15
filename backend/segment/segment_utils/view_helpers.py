@@ -46,8 +46,8 @@ results_dir = "/home/ubuntu/fa3ds/backend/results"
 default_models_dir = "/home/ubuntu/fa3ds/backend/results/auto_segmented_models/first_100"
 report = lambda error: f"\033[31m----------------------------\n{error}\n----------------------------\033[0m\n"
 
-@timeout(300)
-def segment_mesh(mesh, k, face_count, collapsed = False, parallelize = False, extract = False, parent_dir = default_models_dir, mesh_dir = default_models_dir):
+# @timeout(300)
+def segment_mesh(mesh, k, collapsed = False, parallelize = False, extract = False, parent_dir = default_models_dir, mesh_dir = default_models_dir):
     """
     Segments a mesh as follows:
         1. Converts mesh into a face graph, where 
@@ -112,23 +112,11 @@ def segment_mesh(mesh, k, face_count, collapsed = False, parallelize = False, ex
     faces = mesh.face_matrix()
     vertices = mesh.vertex_matrix()
 
-    if parallelize:
-        print(f"Should be segmented into {k} segments")
-        def f(args):
-            vertices, faces, mesh_graph, collapsed, k, t, eigen_vectors, extract, component_dir, mesh_dir = args
+    _, labels = kmeans2(eigen_vectors, k, minit="++", iter=50)
+    visualize_eigen_vectors(eigen_vectors, k, reduced = True)
 
-            _, labels = kmeans2(eigen_vectors, k, minit="++", iter=50) # changed k => number_of_segments for automatic segmentation
-            if collapsed: labels = _unwrap_labels(mesh_graph, labels)
-            if extract: extract_segments(vertices, faces, labels, k, t, component_dir, mesh_dir)
-        
-        new_thread = thread(i, f, [vertices, faces, mesh_graph, collapsed, k, time() - start_time, eigen_vectors, extract, parent_dir, mesh_dir])
-        new_thread.start()
-    else:
-        _, labels = kmeans2(eigen_vectors, k, minit="++", iter=50)
-        visualize_eigen_vectors(eigen_vectors, k, reduced = True)
-
-        if collapsed: labels = _unwrap_labels(mesh_graph, labels)
-        if extract: extract_segments(vertices, faces, labels, k, time() - start_time, parent_dir, mesh_dir)
+    if collapsed: labels = _unwrap_labels(mesh_graph, labels)
+    if extract: extract_segments(vertices, faces, labels, k, time() - start_time, parent_dir, mesh_dir)
 
     print(f"\033[33m[Out] >> Segmented mesh into {len(set(labels))} segments\033[0m")
     print(f"--- Done ---")
@@ -285,8 +273,6 @@ def _remesh(mesh, save_path = None):
             break
         attempts -= 1
 
-    ms.add_mesh(mesh)
-
     for i in ms: pass
     if save_path is not None: ms.save_current_mesh(save_path)
     return ms.current_mesh()
@@ -347,7 +333,7 @@ def batch_seg(meshes):
         :meshes: <list<str, int>> absolute pathes of all meshes to segment 
                                   along with number of segments it should be segmented into
     """
-    for mesh_dir, (res, model_name) in meshes:
+    for mesh_dir, (_, model_name) in meshes:
         mesh_save_dir = f"{default_models_dir}/{model_name}"
         _construct_dir(mesh_save_dir)
         print("Starting to loop over models...")
@@ -383,7 +369,7 @@ def batch_seg(meshes):
                     # res_dir = f"{component_dir}" # For single model segmentation
                     # _construct_dir(res_dir)
 
-                    segment_mesh(mesh, None, res, collapsed = collapsed, parallelize = False, extract = True, parent_dir = component_dir, mesh_dir = component_dir)
+                    segment_mesh(mesh, None, collapsed = collapsed, parallelize = False, extract = True, parent_dir = component_dir, mesh_dir = component_dir)
                     with open("/home/ubuntu/fa3ds/backend/segment/segment_utils/auto_segmented_1_100.txt", "a") as segmented:
                         segmented.write(f"{component_dir}\n") 
                             
