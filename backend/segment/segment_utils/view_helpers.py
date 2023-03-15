@@ -10,9 +10,9 @@ import numpy as np
 import pandas as pd
 from time import time
 import scipy.sparse.linalg
-from .edge import edge_collapse
+from edge import edge_collapse
 import matplotlib.pyplot as plt
-from .mesh_graph import MeshGraph
+from mesh_graph import MeshGraph
 from scipy.cluster.vq import kmeans2
 from sklearn.decomposition import PCA
 
@@ -42,7 +42,7 @@ colors = [
     {"centroid": "red", "points": "blue"},
 ]
 results_dir = "/home/ubuntu/fa3ds/backend/results"
-default_models_dir = "/home/ubuntu/fa3ds/backend/results/auto_segmented_models_verify"
+default_models_dir = "/home/ubuntu/fa3ds/backend/results/auto_segmented_models"
 report = lambda error: f"\033[31m----------------------------\n{error}\n----------------------------\033[0m\n"
 
 def segment_mesh(mesh, k, face_count, collapsed = False, parallelize = False, extract = False, parent_dir = default_models_dir, mesh_dir = default_models_dir):
@@ -77,8 +77,9 @@ def segment_mesh(mesh, k, face_count, collapsed = False, parallelize = False, ex
         4. We compute eigenvalues and vectors of L
         5. We preform K-means clustering (or other technique) on first k egienvectors
     """
+    # print("Predicting segmentation")
     # if k is None: mesh, k = _predict_segmentation(mesh, face_count, collapsed)
-    print(f"Segmenting mesh into {k} segments \nfaces: {mesh.face_matrix().shape}\nvertices: {mesh.vertex_matrix().shape}")
+    print(f"--- Segmenting Mesh ---\nfaces: {mesh.face_matrix().shape}\nvertices: {mesh.vertex_matrix().shape}")
     start_time = time()
     # Step 0
     # mesh = edge_collapse(mesh, face_count = face_count)
@@ -99,7 +100,8 @@ def segment_mesh(mesh, k, face_count, collapsed = False, parallelize = False, ex
         eigen_std = np.std(eigen_values_full)
         k = len([abs(eigen_values_full[i] - eigen_values_full[i - 1]) for i in range(1, len(eigen_values_full)) if abs(eigen_values_full[i] - eigen_values_full[i - 1]) >= eigen_std])
         print(f"\033[32mRecommended segment count for {mesh.face_matrix().shape} resolution: {k}\033[0m")
-
+    print(f"Segmenting mesh into {k} segments")
+    
     # Step 4
     eigen_values, eigen_vectors = scipy.sparse.linalg.eigsh(laplacian) # Eigen values here can be used to get the value of k  = num < epsilon (0.5)
     eigen_vectors /= np.linalg.norm(eigen_vectors, axis=1)[:,None]
@@ -128,6 +130,7 @@ def segment_mesh(mesh, k, face_count, collapsed = False, parallelize = False, ex
         if extract: extract_segments(vertices, faces, labels, k, time() - start_time, parent_dir, mesh_dir)
 
     print(f"\033[33m[Out] >> Segmented mesh into {len(set(labels))} segments\033[0m")
+    print(f"--- Done ---")
     return k, labels
 
 def extract_segments(vertices, faces, labels, num_segments, t, parent_dir = default_models_dir, mesh_dir = default_models_dir):
@@ -141,8 +144,9 @@ def extract_segments(vertices, faces, labels, num_segments, t, parent_dir = defa
         :labels: <list<int>>
     """
     # parent_dir = pathlib.Path(__file__).parent.resolve()
-    segmentation_dir = f"{parent_dir}/{num_segments}_segmentation"
-    _construct_dir(segmentation_dir)
+    # segmentation_dir = f"{parent_dir}/{num_segments}_segmentation"
+    # _construct_dir(segmentation_dir)
+    segmentation_dir = parent_dir
     
     segment_indices = {} 
     for j in range(len(labels)):
@@ -247,7 +251,7 @@ def _predict_segmentation(mesh, face_count, collapsed = False):
 
     return mesh, num_segments
     
-def _remesh(mesh):
+def _remesh(mesh, save_path = None):
     """
     Resmeshes a mesh to force all faces to become polygons 
 
@@ -258,10 +262,27 @@ def _remesh(mesh):
         <ValueError> if the number of verticies > number of vertex normals
     """
     ms = pymeshlab.MeshSet()
-    ms.add_mesh(mesh)
+    if isinstance(mesh, str): ms.load_new_mesh(mesh)
+    else: ms.add_mesh(mesh)
     # ms.meshing_isotropic_explicit_remeshing(iterations=3)
-    ms.meshing_isotropic_explicit_remeshing(iterations=3, targetlen=pymeshlab.Percentage(1.5))
+    # ms.meshing_isotropic_explicit_remeshing(iterations=3, targetlen=pymeshlab.Percentage(1.5))
+
+    ms.compute_matrix_from_scaling_or_normalization(scalecenter='origin', unitflag=True, uniformflag=True)
+    targetlen_given = 1.5
+    while True: 
+        ms.meshing_isotropic_explicit_remeshing(iterations=4, targetlen=pymeshlab.Percentage(targetlen_given))
+        if(ms.current_mesh().face_matrix().shape[0] < 24000):
+            print(f"[remesh] >> Optimizing resolution {ms.current_mesh().face_matrix().shape[0]}...")
+            targetlen_given -= 0.1
+        elif(ms.current_mesh().face_matrix().shape[0] > 26000):
+            print(f"[remesh] >> Optimizing resolution {ms.current_mesh().face_matrix().shape[0]}...")
+            targetlen_given += 0.1
+        else:
+            print(f"[remesh] >> Optimization completed. Current resolution: {ms.current_mesh().face_matrix().shape[0]}... ")
+            break
+
     for i in ms: pass
+    if save_path is not None: ms.save_current_mesh(save_path)
     return ms.current_mesh()
 
 def _construct_dir(dir_name, overwrite = "y"):
@@ -320,10 +341,10 @@ def batch_seg(meshes):
         :meshes: <list<str, int>> absolute pathes of all meshes to segment 
                                   along with number of segments it should be segmented into
     """
-    for mesh_dir, (resolutions, model_name) in meshes:
+    for mesh_dir, (res, model_name) in meshes:
         mesh_save_dir = f"{default_models_dir}/{model_name}"
         _construct_dir(mesh_save_dir)
-
+        print("Starting to loop over models...")
         ms = pymeshlab.MeshSet()
         for _, dirs, files in os.walk(mesh_dir):
             for i, file in enumerate(files):
@@ -337,33 +358,33 @@ def batch_seg(meshes):
     
                 collapsed = True
 
-                ms.load_new_mesh(mesh_path)
-                ms.compute_matrix_from_scaling_or_normalization(scalecenter='origin', unitflag=True, uniformflag=True)
-                ms.meshing_isotropic_explicit_remeshing(iterations=3, targetlen=pymeshlab.Percentage(1.5))
-                mesh = ms.current_mesh()
-                ms.save_current_mesh(f"{component_dir}/{mesh_name.lower()}.obj")
+                # ms.load_new_mesh(mesh_path)
+                
+                # mesh = ms.current_mesh()
+                # ms.save_current_mesh(f"{component_dir}/{mesh_name.lower()}.obj")
 
-                faces = mesh.face_matrix()
-                vertices = mesh.vertex_matrix()
+                # faces = mesh.face_matrix()
+                # vertices = mesh.vertex_matrix()
                 
                 try: 
                     # def f(args):
                     #     mesh, K, face_count, collapsed, parent_dir = args 
                     
-                    # mesh = _remesh(edge_collapse(mesh, face_count = 20000))
-                    for j, res in enumerate(resolutions):
+                    mesh = _remesh(mesh_path, save_path = f"{component_dir}/{mesh_name.lower()}.obj")
+                    # for j, res in enumerate(resolutions):
                         # new_thread = thread(i, f, [mesh, K, resolution, collapsed, component_dir])
                         # new_thread.start()
-                        res_dir = f"{component_dir}/res_{res}"
-                        _construct_dir(res_dir)
-                        segment_mesh(mesh, None, res, collapsed = collapsed, parallelize = False, parent_dir = res_dir, mesh_dir = component_dir)
+                        # res_dir = f"{component_dir}/res_{res}" # For component based segmentation
+                    # res_dir = f"{component_dir}" # For single model segmentation
+                    # _construct_dir(res_dir)
+                    segment_mesh(mesh, None, res, collapsed = collapsed, parallelize = False, parent_dir = component_dir, mesh_dir = component_dir)
 
-                        with open("/home/ubuntu/fa3ds/backend/segment/segment_utils/segmented.txt", "a") as segmented:
-                            segmented.write(f"{res_dir}\n") 
+                    with open("/home/ubuntu/fa3ds/backend/segment/segment_utils/auto_segmented.txt", "a") as segmented:
+                        segmented.write(f"{component_dir}\n") 
                             
                 except Exception as error:
-                    with open("/home/ubuntu/fa3ds/backend/segment/segment_utils/skipped.txt", "a") as skipped:
-                        skipped.write(f"{component_dir}\n")
+                    with open("/home/ubuntu/fa3ds/backend/segment/segment_utils/auto_skipped.txt", "a") as skipped:
+                        skipped.write(f"model_{component_dir.split('_')[-1]}\n")
                     if "info.csv" not in os.listdir(component_dir): _remove_dir(component_dir)
                     print(report(f"{traceback.format_exc()}\nSegmentation failed :("))
                     continue
@@ -371,13 +392,13 @@ def batch_seg(meshes):
             _remove_dir(mesh_save_dir)
    
 if __name__ == "__main__":
-    mesh_base_dir = "/home/ubuntu/scraped_models/first_100_models_files"
+    mesh_base_dir = "/home/ubuntu/scraped_models/formative_models"
 
-    meshes = [["/home/ubuntu/scraped_models/formative_models", ([15000, 20000, 25000, 30000], "formative_models")]]
+    meshes = [["/home/ubuntu/scraped_models/formative_models", (25000, "formative_models")]]
     # for _, mesh_dirs, files in os.walk(mesh_base_dir):
     #     for mesh_dir in mesh_dirs:
     #         mesh_name, mesh_ext = os.path.splitext(mesh_dir)
     #         meshes.append([f"{mesh_base_dir}/{mesh_dir}", ([15000, 20000, 25000, 30000], mesh_name)])
     #     break
-
+    print(f"[info] >> Segmenting a total of {len(meshes)} meshes")
     batch_seg(meshes)
