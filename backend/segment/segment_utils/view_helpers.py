@@ -79,8 +79,6 @@ def segment_mesh(mesh, k, face_count, collapsed = False, parallelize = False, ex
         4. We compute eigenvalues and vectors of L
         5. We preform K-means clustering (or other technique) on first k egienvectors
     """
-    # print("Predicting segmentation")
-    # if k is None: mesh, k = _predict_segmentation(mesh, face_count, collapsed)
     print(f"--- Segmenting Mesh ---\nfaces: {mesh.face_matrix().shape}\nvertices: {mesh.vertex_matrix().shape}")
     start_time = time()
     # Step 0
@@ -287,6 +285,8 @@ def _remesh(mesh, save_path = None):
             break
         attempts -= 1
 
+    ms.add_mesh(mesh)
+
     for i in ms: pass
     if save_path is not None: ms.save_current_mesh(save_path)
     return ms.current_mesh()
@@ -352,6 +352,7 @@ def batch_seg(meshes):
         _construct_dir(mesh_save_dir)
         print("Starting to loop over models...")
         ms = pymeshlab.MeshSet()
+
         for _, dirs, files in os.walk(mesh_dir):
             for i, file in enumerate(files):
                 mesh_name, mesh_ext = os.path.splitext(file) 
@@ -367,11 +368,6 @@ def batch_seg(meshes):
     
                 collapsed = True
 
-                # ms.load_new_mesh(mesh_path)
-                
-                # mesh = ms.current_mesh()
-                # ms.save_current_mesh(f"{component_dir}/{mesh_name.lower()}.obj")
-
                 # faces = mesh.face_matrix()
                 # vertices = mesh.vertex_matrix()
                 
@@ -386,8 +382,8 @@ def batch_seg(meshes):
                         # res_dir = f"{component_dir}/res_{res}" # For component based segmentation
                     # res_dir = f"{component_dir}" # For single model segmentation
                     # _construct_dir(res_dir)
-                    segment_mesh(mesh, None, res, collapsed = collapsed, parallelize = False, extract = True, parent_dir = component_dir, mesh_dir = component_dir)
 
+                    segment_mesh(mesh, None, res, collapsed = collapsed, parallelize = False, extract = True, parent_dir = component_dir, mesh_dir = component_dir)
                     with open("/home/ubuntu/fa3ds/backend/segment/segment_utils/auto_segmented_1_100.txt", "a") as segmented:
                         segmented.write(f"{component_dir}\n") 
                             
@@ -396,6 +392,7 @@ def batch_seg(meshes):
                         skipped.write(f"model_{component_dir.split('_')[-1]}\n")
                     if "info.csv" not in os.listdir(component_dir): _remove_dir(component_dir)
                     print(report(f"{traceback.format_exc()}\nSegmentation failed :("))
+
                     continue
         if len(os.listdir(mesh_save_dir)) == 0:
             _remove_dir(mesh_save_dir)
