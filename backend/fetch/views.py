@@ -43,6 +43,7 @@ def fetch(request, *args, **kwargs):
         mesh_dir = request['mesh_dir']
         print(f"Fetching mesh {i} from {mesh_dir} ...")
 
+        mesh_path = None
         mesh, faces, vertices, face_segments = None, None, None, None
         try:
             for file in os.listdir(mesh_dir): 
