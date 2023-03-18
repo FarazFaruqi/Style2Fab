@@ -21,7 +21,7 @@ from .operators.segment import Segment_OT_Op
 from .operators.stylize import Stylize_OT_Op
 from .operators.annotate import Annotate_OT_Op
 from .operators.select_mesh import Prev_OT_Op, Next_OT_Op
-from .operators.select_segment import PrevSeg_OT_Op, NextSeg_OT_Op
+from .operators.select_segment import PrevSeg_OT_Op, NextSeg_OT_Op, SelectFunc_OT_Op
 from bpy.props import StringProperty, CollectionProperty, BoolProperty, IntProperty, EnumProperty
 
 class Segments(bpy.types.PropertyGroup):
@@ -52,6 +52,7 @@ classes = (
     PrevSeg_OT_Op,
     NextSeg_OT_Op,
     Annotate_OT_Op,
+    SelectFunc_OT_Op,
 
     Segments, 
     Model, 
@@ -80,7 +81,7 @@ props = {
 
     'mesh_dir': StringProperty(
         name = "", 
-        default = "/home/ubuntu/fa3ds/backend/results/segmented_models/model_1"
+        default = "/home/ubuntu/fa3ds/backend/results/auto_segmented_models/formative_models"
     ),
 
     'face_count': IntProperty(
@@ -104,7 +105,7 @@ props = {
             ("face collapse", "face collapse", ""),
             ("edge collapse", "edge collapse", ""),
         ],
-    ),
+    )
 }
 
 def register():

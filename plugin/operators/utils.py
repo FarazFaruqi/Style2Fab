@@ -141,8 +141,8 @@ def get_segment_vertices(op, context, j):
                 for i in faces:
                     for vertex in obj.data.polygons[i].vertices:
                         vertices.append(vertex)
-                break
-        break
+                # break
+        # break
 
     return vertices
 

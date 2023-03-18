@@ -35,7 +35,8 @@ class Segment_PT_Panel(Panel):
                     segment = model.segments[i]
 
                     if segment.selected: j = i; break
-                if j < len(model.segments): _draw_segment_cursor(layout, model.segments[j])
+                layout.label(text=f"Selected segment: {j}")
+                _draw_segment_cursor(layout, model.segments[j % len(model.segments)])
 
                 layout.operator("mesh.annotate", text="Save", icon="CHECKMARK")
 

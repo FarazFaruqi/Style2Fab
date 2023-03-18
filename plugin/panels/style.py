@@ -16,6 +16,9 @@ class Style_PT_Panel(Panel):
     def draw(self, context):
         """ Draws out the ui panel """
         layout = self.layout
+
+        layout.operator("segment.select_func", icon = "PLUGIN")
+
         layout.label(text="Prompt")
         prompt_col = layout.column()
         prompt_row = prompt_col.row()
