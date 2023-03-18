@@ -19,8 +19,9 @@ class Next_OT_Op(bpy.types.Operator):
 
     def execute(self, context):
         """ Executes the fetching of the next mesh """
+        i = 0 if context.scene.i == context.scene.num_meshes else context.scene.i + 1
         i = context.scene.i + 1
-        bpy.ops.object.mode_set(mode='OBJECT')
+        if context.object is not None: bpy.ops.object.mode_set(mode='OBJECT')
         if "Loaded" not in context.scene.models: 
             model = context.scene.models.add()
             model.name = "Loaded"
@@ -40,8 +41,8 @@ class Prev_OT_Op(bpy.types.Operator):
 
     def execute(self, context):
         """Executes the segmentation"""
-        i = context.scene.i - 1
-        bpy.ops.object.mode_set(mode='OBJECT')
+        i = 0 if context.scene.i == 0 else context.scene.i - 1 
+        if context.object is not None: bpy.ops.object.mode_set(mode='OBJECT')
         if "Loaded" not in context.scene.models: 
             model = context.scene.models.add()
             model.name = "Loaded"

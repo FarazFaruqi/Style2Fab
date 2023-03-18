@@ -2,10 +2,10 @@ import bpy
 import json
 import bmesh
 import requests 
-from .utils import remove_mesh, add_mesh
+import traceback
+from .utils import remove_mesh, add_mesh, report
 
 ### Constants ###
-report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
 
 class Delete_OT_Op(bpy.types.Operator):
     """ Delete a mesh """
@@ -41,6 +41,6 @@ class Delete_OT_Op(bpy.types.Operator):
                     bpy.data.objects.remove(obj)
                 self.report({'INFO'}, f"Removed mesh successfully!")
 
-            except Exception as error: self.report({'INFO'}, f"Error occured while editing mesh\n{report(error)}")
+            except Exception as error: self.report({'INFO'}, f"Error occured while editing mesh\n{report(traceback.format_exc())}")
             
             return {'FINISHED'}

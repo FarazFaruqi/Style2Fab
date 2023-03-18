@@ -79,6 +79,11 @@ props = {
         default = 0
     ),
 
+    'num_meshes': IntProperty(
+        name = "", 
+        default = 0
+    ),
+
     'mesh_dir': StringProperty(
         name = "", 
         default = "/home/ubuntu/fa3ds/backend/results/auto_segmented_models/formative_models"

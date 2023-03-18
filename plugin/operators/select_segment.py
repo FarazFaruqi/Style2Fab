@@ -25,7 +25,7 @@ class NextSeg_OT_Op(bpy.types.Operator):
         selected_vertices = [] 
         # deselect everything
         select_vertices(context, selected_vertices)
-
+    
         selected_vertices += get_segment_vertices(self, context, 1)
         self.report({'INFO'}, f"{len(selected_vertices)} vertices selected")
         select_vertices(context, selected_vertices)
@@ -50,10 +50,10 @@ class PrevSeg_OT_Op(bpy.types.Operator):
         """Executes the segmentation"""
         selected_vertices = [] 
         # deselect everything
-        select_vertices(context, selected_vertices)
 
+        select_vertices(context, selected_vertices)
         selected_vertices += get_segment_vertices(self, context, -1)
-        
+        self.report({'INFO'}, f"{len(selected_vertices)} vertices selected")
         select_vertices(context, selected_vertices)
 
         return {'FINISHED'}

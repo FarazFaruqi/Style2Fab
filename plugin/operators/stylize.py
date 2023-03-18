@@ -2,6 +2,7 @@ import bpy
 import json
 import bmesh
 import requests 
+import traceback
 from .utils import report, domain
 
 ### Constants ###
@@ -63,7 +64,7 @@ class Stylize_OT_Op(bpy.types.Operator):
 
             bpy.ops.object.mode_set(mode='OBJECT')
 
-        except Exception as error: self.report({'WARNING'}, f"Error occured while stylizing mesh\n{report(error)}")
+        except Exception as error: self.report({'WARNING'}, f"Error occured while stylizing mesh\n{report(traceback.format_exc())}")
         
         return {'FINISHED'}
 

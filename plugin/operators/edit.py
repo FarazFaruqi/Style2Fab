@@ -2,10 +2,10 @@ import bpy
 import json
 import bmesh
 import requests 
-from .utils import remove_mesh, add_mesh, domain
+import traceback
+from .utils import remove_mesh, add_mesh, domain, report
 
 ### Constants ###
-report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
 
 class Edit_OT_Op(bpy.types.Operator):
     """ Edit a mesh """
@@ -56,6 +56,6 @@ class Edit_OT_Op(bpy.types.Operator):
                     # Add new mesh
                     new_object = add_mesh(self, mesh_name, vertices, faces)
 
-                except Exception as error: self.report({'ERROR'}, f"Error occured while editing mesh\n{report(error)}")
+                except Exception as error: self.report({'ERROR'}, f"Error occured while editing mesh\n{report(traceback.format_exc())}")
                 
             return {'FINISHED'}
