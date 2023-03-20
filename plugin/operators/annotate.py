@@ -2,6 +2,7 @@ import bpy
 import json
 import bmesh
 import requests 
+import traceback
 from .utils import report, domain
 
 ### Constants ###
@@ -46,6 +47,6 @@ class Annotate_OT_Op(bpy.types.Operator):
                         
                         self.report({'INFO'}, f"Annotated mesh successfully!")
 
-                    except Exception as error: self.report({'ERROR'}, f"Error occured while editing mesh\n{report(error)}")
+                    except Exception as error: self.report({'ERROR'}, f"Error occured while editing mesh\n{report(traceback.format_exc())}")
 
         return {'FINISHED'}

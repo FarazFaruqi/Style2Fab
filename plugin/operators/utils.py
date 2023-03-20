@@ -4,6 +4,7 @@ import json
 import bmesh
 import json
 import requests
+import traceback
 
 ### Constants ###
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -11,7 +12,7 @@ with open(f"{base_dir}/settings.json", 'r') as ip_file:
     ip_file = json.load(ip_file)
     domain = f"http://{ip_file['ip']}:{ip_file['port']}"
 
-report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
+report = lambda error: f"\033[31m----------------------------\n{error}\n----------------------------\033[0m\n"
 with open(f"{base_dir}/colors.json", "rb") as colors_file:
     colors = json.loads(colors_file.read())['colors']
 
@@ -49,13 +50,20 @@ def fetch(self, context, i):
         response = requests.post(url = url, json = data).json()
         
         faces = response['faces']
+        failed = response['failed']
         meshId = response['meshId']
         labels = response['labels']
         vertices = response['vertices']
+        num_meshes = response['numMeshes']
         face_segments = response['face_segments']
         self.report({'INFO'}, f"Loaded mesh successfully!")
 
         context.scene.i = i 
+        context.scene.num_meshes = num_meshes
+        if failed: 
+            self.report({'WARNING'}, f"Failed to load mesh {i}")
+            return {'FINISHED'}
+        
         if faces is None: 
             self.report({'INFO'}, f"No more meshes inside directory {mesh_dir}")
             return {'FINISHED'}
@@ -81,15 +89,15 @@ def fetch(self, context, i):
                 model.name = mesh_name.lower()
                 model.id = meshId
             model.segmented = True
-
-            assign_materials(new_object, k, face_segments, context, labels, model)
+            assign_materials(self, new_object, k, face_segments, context, labels, model)
+            self.report({'INFO'}, f"[labels] >> {len(labels)} == {k} {labels}")
 
     except Exception as error: 
-        self.report({'ERROR'}, f"Error occured while fetching mesh\n{report(error)}")
+        self.report({'ERROR'}, f"Error occured while fetching mesh\n{report(traceback.format_exc())}")
             
     return {'FINISHED'}
 
-def assign_materials(mesh, k, face_segments, context, labels, model):
+def assign_materials(self, mesh, k, face_segments, context, labels, model):
     """ Assigns a colored material for each found segment """
     if face_segments is None: return
     n = len(face_segments)
@@ -108,42 +116,55 @@ def assign_materials(mesh, k, face_segments, context, labels, model):
         else: segment = model.segments[i]
 
         segment.i = i
-        segment.label = labels[i]
+        segment.label = labels[i].lower()
         segment.color = colors[f"{i}"][0]
         segment.faces = "\n".join(str(j) for j in segemnt_to_faces[i])
-        segment.selected = True if segment.label == "function" else False
+        segment.is_form = True if segment.label == "form" else False
+        segment.is_func = True if segment.label == "function" else False
 
     for i, label in enumerate(face_segments):
         mesh.data.polygons[i].material_index = int(label)
 
-def get_segment_vertices(op, context, j):
+def get_segment_vertices(self, context, j):
     """ Gets all vertices of selected segment(s) """
     obj = context.view_layer.objects.active
     mesh = bmesh.from_edit_mesh(obj.data)
+
     for vertex in mesh.verts:
         vertex.select = False
 
-    vertices = []
+    vertices = None
     for model in context.scene.models:
         if model.name != obj.name.lower(): continue
         if not model.segmented: continue
         for i in range(len(model.segments)):
             segment = model.segments[i]
+            self.report({'INFO'}, f"[segemnt {i}] >> selected? {segment.selected}")
             if not segment.selected: continue
             else:
-                if i + j == len(model.segments): break
+                if (i + j == len(model.segments)) or (i + j < 0): break
                 segment.selected = False
-                segment = model.segments[i + j]
-                segment.selected = True
+                if vertices is None: vertices = extract_vertices(model, obj, i + j)
+                else: vertices += extract_vertices(model, obj, i + j)
                 
-                faces = list(map(int, segment.faces.split("\n")))
-                
-                for i in faces:
-                    for vertex in obj.data.polygons[i].vertices:
-                        vertices.append(vertex)
-                break
-        break
+                if j != 0: break
+        if vertices is None:
+            vertices = extract_vertices(model, obj, 0)
+        if j != 0: break
 
+    return vertices
+    
+def extract_vertices(model, obj, j):
+    segment = model.segments[j]
+    segment.selected = True
+    
+    vertices = []
+    faces = list(map(int, segment.faces.split("\n")))
+
+    for i in faces:
+        for vertex in obj.data.polygons[i].vertices:
+            vertices.append(vertex)
+    
     return vertices
 
 def select_vertices(context, selected_vertices):

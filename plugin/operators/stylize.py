@@ -2,6 +2,7 @@ import bpy
 import json
 import bmesh
 import requests 
+import traceback
 from .utils import report, domain
 
 ### Constants ###
@@ -43,9 +44,9 @@ class Stylize_OT_Op(bpy.types.Operator):
         
         try:
             response = requests.post(url = url, json = data).json()
-            faces = json.loads(response['faces'])
-            vertices = json.loads(response['vertices'])
-            materials = json.loads(response['materials'])
+            faces = response['faces']
+            vertices = response['vertices']
+            materials = response['materials']
             self.report({'INFO'}, f"Stylized mesh successfully!")
             
             mesh_name = f"{obj.name}-stylized"
@@ -63,7 +64,7 @@ class Stylize_OT_Op(bpy.types.Operator):
 
             bpy.ops.object.mode_set(mode='OBJECT')
 
-        except Exception as error: self.report({'WARNING'}, f"Error occured while stylizing mesh\n{report(error)}")
+        except Exception as error: self.report({'WARNING'}, f"Error occured while stylizing mesh\n{report(traceback.format_exc())}")
         
         return {'FINISHED'}
 
@@ -78,15 +79,15 @@ def _assign_materials(mesh, colors):
         :materials: <list> of size f x 4, where f is number of faces in mesh
     """
     j = 0
-    taken = []
+    taken = {}
     for i, color in enumerate(colors):
-        if color not in taken:
+        if tuple(color) not in taken:
             j += 1
-            taken.append(color)
+            taken[tuple(color)] = j
             material = bpy.data.materials.new(''.join(['mat', mesh.name, str(j)]))
             material.diffuse_color = color
             mesh.data.materials.append(material)
 
-        mesh.data.polygons[i].material_index = j
+        mesh.data.polygons[i].material_index = taken[tuple(color)]
     
         

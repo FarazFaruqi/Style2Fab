@@ -3,10 +3,10 @@ import bpy
 import json
 import bmesh
 import requests 
-from .utils import remove_mesh, add_mesh, assign_materials, domain
+import traceback
+from .utils import remove_mesh, add_mesh, assign_materials, domain, report
 
 ### Constants ###
-report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
 
 class Segment_OT_Op(bpy.types.Operator):
     """ Segment a mesh """
@@ -81,6 +81,6 @@ class Segment_OT_Op(bpy.types.Operator):
 
                     assign_materials(new_object, k, face_segments, context, labels, model)
 
-                except Exception as error: print(f"Error occured while segmenting mesh\n{report(error)}")
+                except Exception as error: print(f"Error occured while segmenting mesh\n{report(traceback.format_exc())}")
                 
             return {'FINISHED'}
