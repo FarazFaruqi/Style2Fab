@@ -56,10 +56,15 @@ def stylize(request, *args, **kwargs):
 
         mesh = x2mesh(x2mesh_args, clip_model, preprocess)
         
-        materials = np.ones((mesh.faces.shape[0], 4))
+        materials = np.zeros((mesh.faces.shape[0], 4))
+        for i, face in enumerate(mesh.faces):
+            for v in face:
+                for j, channel in enumerate(mesh.color[v]):
+                    materials[i][j] += channel / 3
+            materials[i, 3] = 1
         
-        data['faces'] = json.dumps(mesh.faces.tolist())
-        data['materials'] = json.dumps(materials.tolist())
-        data['vertices'] = json.dumps(mesh.vertices.tolist())
+        data['faces'] = mesh.faces.tolist()
+        data['materials'] = materials.tolist()
+        data['vertices'] = mesh.vertices.tolist()
 
     return Response(data = data, status = stylize_status)
