@@ -56,7 +56,7 @@ def segment(request, *args, **kwargs):
         mesh = _remesh(mesh)
 
         start_time = time()
-        k, labels = segment_mesh(mesh, None, face_count = 15000, collapsed = collapsed)
+        k, labels = segment_mesh(mesh, None, collapsed = collapsed)
 
         # extract_segments(vertices, faces, labels, k, time() - start_time, parent_dir = parent_dir)
 

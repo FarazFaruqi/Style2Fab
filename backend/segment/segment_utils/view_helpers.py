@@ -43,7 +43,7 @@ colors = [
     {"centroid": "red", "points": "blue"},
 ]
 results_dir = "/home/ubuntu/fa3ds/backend/results"
-default_models_dir = "/home/ubuntu/fa3ds/backend/results/auto_segmented_models/first_100"
+default_models_dir = "/home/ubuntu/fa3ds/backend/assemble/Experiments/Planter/segmented"
 report = lambda error: f"\033[31m----------------------------\n{error}\n----------------------------\033[0m\n"
 
 # @timeout(300)
@@ -277,7 +277,7 @@ def _remesh(mesh, save_path = None):
     if save_path is not None: ms.save_current_mesh(save_path)
     return ms.current_mesh()
 
-def _construct_dir(dir_name, overwrite = None):
+def _construct_dir(dir_name, overwrite = "yes"):
     """
     Constructs a new directory with name dir_name, if one does not exist
     else it promopts user to over-write
@@ -370,11 +370,11 @@ def batch_seg(meshes):
                     # _construct_dir(res_dir)
 
                     segment_mesh(mesh, None, collapsed = collapsed, parallelize = False, extract = True, parent_dir = component_dir, mesh_dir = component_dir)
-                    with open("/home/ubuntu/fa3ds/backend/segment/segment_utils/auto_segmented_1_100.txt", "a") as segmented:
+                    with open("/home/ubuntu/fa3ds/backend/segment/segment_utils/auto_segmented_test.txt", "a") as segmented:
                         segmented.write(f"{component_dir}\n") 
                             
                 except Exception as error:
-                    with open("/home/ubuntu/fa3ds/backend/segment/segment_utils/auto_skipped_1_100.txt", "a") as skipped:
+                    with open("/home/ubuntu/fa3ds/backend/segment/segment_utils/auto_skipped_test.txt", "a") as skipped:
                         skipped.write(f"model_{component_dir.split('_')[-1]}\n")
                     if "info.csv" not in os.listdir(component_dir): _remove_dir(component_dir)
                     print(report(f"{traceback.format_exc()}\nSegmentation failed :("))
@@ -384,13 +384,13 @@ def batch_seg(meshes):
             _remove_dir(mesh_save_dir)
    
 if __name__ == "__main__":
-    mesh_base_dir = "/home/ubuntu/scraped_models/first_100_models_files"
+    mesh_base_dir = "/home/ubuntu/fa3ds/backend/assemble/Experiments/Planter/models"
 
-    meshes = []
-    for _, mesh_dirs, files in os.walk(mesh_base_dir):
-        for mesh_dir in mesh_dirs:
-            mesh_name, mesh_ext = os.path.splitext(mesh_dir)
-            meshes.append([f"{mesh_base_dir}/{mesh_dir}", ([25000], mesh_name.lower())])
-        break
+    meshes = [["/home/ubuntu/fa3ds/backend/assemble/Experiments/Planter/models", ([25000], "segmented_new")]]
+    # for _, mesh_dirs, files in os.walk(mesh_base_dir):
+    #     for mesh_dir in mesh_dirs:
+    #         mesh_name, mesh_ext = os.path.splitext(mesh_dir)
+    #         meshes.append([f"{mesh_base_dir}/{mesh_dir}", ([25000], mesh_name.lower())])
+    #     break
     print(f"[info] >> Segmenting a total of {len(meshes)} meshes")
     batch_seg(meshes)

@@ -5,7 +5,9 @@ import os
 import sys
 import json
 import pymeshlab
+import traceback 
 import numpy as np
+import pandas as pd
 import scipy.sparse.linalg
 from rest_framework import status
 from django.shortcuts import render
@@ -45,34 +47,50 @@ def fetch(request, *args, **kwargs):
 
         mesh_path = None
         mesh, faces, vertices, face_segments = None, None, None, None
+        labels = [
+            "function", "function", "form", "function", "function", "form", "function", "form", "form", "function", "form", "function", 
+            "function", "function", "form", "function", "function", "form", "function", "form", "form", "function", "form", "function",
+            "form"
+        ]
+        
         try:
+            num_meshes = 0
+            mesh_found = False
             for file in os.listdir(mesh_dir): 
                 mesh_path = f"{mesh_dir}/{file}"
                 
                 if os.path.isfile(mesh_path):
                     mesh_name, mesh_ext = os.path.splitext(mesh_path)
                     if mesh_ext != ".obj": continue
+                    num_meshes += 1
+                    if mesh_found: continue
 
                     if i == 0: 
                         ms = pymeshlab.MeshSet()
                         ms.load_new_mesh(mesh_path)
                         mesh = ms.current_mesh()
                         print(f"Found mesh at {mesh_path}!")
-                        break
+                        mesh_found = True
                     i -= 1
 
                 if os.path.isdir(mesh_path):
                     try:
                         # print(f"Searching {mesh_path} ...")
+                        num_meshes += 1
+                        if mesh_found: continue
                         if i == 0: 
                             mesh, face_segments = reconstruct_mesh(mesh_path)
                             print(f"Found segmented mesh at {mesh_path}!")
-                            break
-                        i -= 1
+                            labels_path = f"{mesh_path}/labels_{len(set(face_segments))}.csv"
+                            if os.path.isfile(labels_path): 
+                                labels_df = pd.read_csv(labels_path)
+                                labels = list(labels_df['label'])
+
+                            mesh_found = True
                     except Exception as error:                 
-                        print(report(error))
-                        continue
-        except Exception as error: print(report(error))
+                        print(report(traceback.format_exc()))
+                    i -= 1
+        except Exception as error: print(report(traceback.format_exc()))
 
         if mesh is not None:
             faces = list(mesh.face_matrix())
@@ -84,10 +102,10 @@ def fetch(request, *args, **kwargs):
         data['vertices'] = vertices
         data['face_segments'] = face_segments
         data['meshId'] = mesh_path
-        data['labels'] = [
-            "function", "function", "form", "function", "function", "form", "function", "form", "form", "function", "form", "function", 
-            "function", "function", "form", "function", "function", "form", "function", "form", "form", "function", "form", "function",
-            "form"
-        ]
+        data['numMeshes'] = num_meshes
+        data['failed'] = True if mesh is None else False
+        print(f"[numMeshes] >> {data['numMeshes']}")
+        print(f"[labels] >> {len(labels)} {labels}")
+        data['labels'] = labels
         
     return Response(data = data, status = fetch_status)

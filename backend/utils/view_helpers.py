@@ -1,11 +1,15 @@
 """
 view helpers 
 """
+import os
+import errno
+import signal
+import functools
 from rest_framework import status
 from django.core.exceptions import ValidationError
 
 ### Global COnstants ###
-report = lambda error: f"----------------------------\n{error}\n----------------------------\n"
+report = lambda error: f"\033[31m----------------------------\n{error}\n----------------------------\033[0m\n"
 
 ### Functions ###
 def _is_subset(required_fields, request_fields) -> status:
@@ -31,3 +35,29 @@ def _is_subset(required_fields, request_fields) -> status:
         if field not in request_fields: 
             return status.HTTP_400_BAD_REQUEST
     return status.HTTP_200_OK
+
+
+class TimeoutError(Exception):
+    pass
+
+def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
+    """ Handles timeout for single thread """
+    def decorator(func):
+        def _handle_timeout(signum, frame, silent = False):
+            if not silent: raise TimeoutError(error_message)
+            else:
+                print(error_message)
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.alarm(seconds)
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+            return result
+
+        return wrapper
+
+    return decorator
