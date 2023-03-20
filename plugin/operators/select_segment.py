@@ -86,6 +86,7 @@ class SelectFunc_OT_Op(bpy.types.Operator):
             for i in range(len(model.segments)):
                 segment = model.segments[i]
                 if segment.is_func: segment.selected = True; num_func += 1
+                else: segment.selected = False
 
         if num_func > 0: selected_vertices += get_segment_vertices(self, context, 0)
         
