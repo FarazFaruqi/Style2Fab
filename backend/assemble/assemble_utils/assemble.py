@@ -1,7 +1,7 @@
 import re
 import pymeshlab
 import numpy as np
-from .heuristics import check_heuristics
+from heuristics import check_heuristics
 from itertools import chain, combinations
 
 ### Global Constants ###
@@ -35,7 +35,7 @@ colors = {
 models_dir = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/models"
 replace_mult = lambda s, replaced, replacee: s.replace(replaced[0], replacee[0]) if len(replaced) == 1 else replace_mult(s.replace(replaced[0], replacee[0]), replaced[1:], replacee[1:])
 
-def assemble(mesh_set, mesh_name = "assembled"):
+def assemble(mesh_set, mesh_name = "assembled", save = False):
     """
     Assembles a set of meshes into a single mesh
 
@@ -56,20 +56,21 @@ def assemble(mesh_set, mesh_name = "assembled"):
                     vertices.append(vertex_matrix[v])
                 face[k] = vert_map[tuple(vertex_matrix[v])]             
             faces.append(face)
-            f_color_matrix.append(colors[i][1])
+            f_color_matrix.append(colors[i % 24][1])
     
     faces = np.array(faces)
     vertices = np.array(vertices)
     f_color_matrix = np.array(f_color_matrix)
 
-    # print(f"[faces] >> {faces.shape}")
-    # print(f"[vertices] >> {vertices.shape}")
-    # print(f"[f_color_matrix] >> {f_color_matrix.shape}")
+    print(f"[faces] >> {faces.shape}")
+    print(f"[vertices] >> {vertices.shape}")
+    print(f"[f_color_matrix] >> {f_color_matrix.shape}")
 
     new_mesh = pymeshlab.Mesh(vertex_matrix=vertices, face_matrix=faces, f_color_matrix=f_color_matrix)
 
-    # ms.add_mesh(new_mesh)
-    # ms.save_current_mesh(f"{models_dir}/{mesh_name}.obj")
+    if save: 
+        ms.add_mesh(new_mesh)
+        ms.save_current_mesh(f"{models_dir}/{mesh_name}.obj")
 
     return new_mesh
 
@@ -106,26 +107,38 @@ def generate_power_set(mesh_set):
   
     return power_mesh_set
 
-# if __name__ == "__main__":
-#     mesh_path_1 = "/home/ubuntu/fa3ds/backend/results/api_segmented_models/model_1/8_segmentation/segment_7/segment_7.obj"
-#     mesh_path_2 = "/home/ubuntu/fa3ds/backend/results/api_segmented_models/model_1/8_segmentation/segment_4/segment_4.obj"
-#     mesh_path_3 = "/home/ubuntu/fa3ds/backend/results/api_segmented_models/model_1/8_segmentation/segment_2/segment_2.obj"
-#     mesh_path_4 = "/home/ubuntu/fa3ds/backend/results/api_segmented_models/model_1/8_segmentation/segment_0/segment_0.obj"
-#     mesh_path_5 = "/home/ubuntu/fa3ds/backend/results/api_segmented_models/model_1/8_segmentation/segment_1/segment_1.obj"
-#     mesh_path_6 = "/home/ubuntu/fa3ds/backend/results/api_segmented_models/model_1/8_segmentation/segment_3/segment_3.obj"
-#     mesh_path_7 = "/home/ubuntu/fa3ds/backend/results/api_segmented_models/model_1/8_segmentation/segment_5/segment_5.obj"
-#     mesh_path_8 = "/home/ubuntu/fa3ds/backend/results/api_segmented_models/model_1/8_segmentation/segment_6/segment_6.obj"
-#     ms = pymeshlab.MeshSet()
-#     ms.load_new_mesh(mesh_path_1)
-#     ms.load_new_mesh(mesh_path_2)
-#     ms.load_new_mesh(mesh_path_3)
-#     ms.load_new_mesh(mesh_path_4)
-#     ms.load_new_mesh(mesh_path_5)
-#     ms.load_new_mesh(mesh_path_6)
-#     ms.load_new_mesh(mesh_path_7)
-#     ms.load_new_mesh(mesh_path_8)
-#     power_set = generate_power_set(ms)
-    # assemble(ms)
+if __name__ == "__main__":
+    mesh_path_0 = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/cat/model_0.obj"
+    mesh_path_1 = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/cat/model_1.obj"
+    mesh_path_2 = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/cat/model_2.obj"
+    mesh_path_3 = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/cat/model_3.obj"
+    mesh_path_4 = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/cat/model_4.obj"
+    mesh_path_5 = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/cat/model_5.obj"
+    mesh_path_6 = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/cat/model_6.obj"
+    mesh_path_7 = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/cat/model_7.obj"
+    mesh_path_8 = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/cat/model_8.obj"
+    mesh_path_9 = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/cat/model_9.obj"
+    mesh_path_10 = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/cat/model_10.obj"
+    mesh_path_11 = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/cat/model_11.obj"
+    mesh_path_12 = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/cat/model_12.obj"
+
+    ms = pymeshlab.MeshSet()
+    ms.load_new_mesh(mesh_path_0)
+    ms.load_new_mesh(mesh_path_1)
+    ms.load_new_mesh(mesh_path_2)
+    ms.load_new_mesh(mesh_path_3)
+    ms.load_new_mesh(mesh_path_4)
+    ms.load_new_mesh(mesh_path_5)
+    ms.load_new_mesh(mesh_path_6)
+    ms.load_new_mesh(mesh_path_7)
+    ms.load_new_mesh(mesh_path_8)
+    ms.load_new_mesh(mesh_path_9)
+    ms.load_new_mesh(mesh_path_10)
+    ms.load_new_mesh(mesh_path_11)
+    ms.load_new_mesh(mesh_path_12)
+
+    # power_set = generate_power_set(ms)
+    assemble(ms, save=True)
                 
 
     

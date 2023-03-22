@@ -88,7 +88,7 @@ def fetch(request, *args, **kwargs):
 
                             mesh_found = True
                     except Exception as error:                 
-                        print(report(traceback.format_exc()))
+                        print(report(f"failed on {mesh_path}\n{traceback.format_exc()}"))
                     i -= 1
         except Exception as error: print(report(traceback.format_exc()))
 

@@ -115,7 +115,7 @@ wrl_footer = \
 }
 """
 
-def similarity(mesh_set, arg1 = 4000, mu = 0.0005, arg2 = 128, arg3 = 0.5):
+def similarity(mesh_set, wait = None, arg1 = 4000, mu = 0.0005, arg2 = 128, arg3 = 0.5):
     """
     Computes the similarities between a set of meshes
 
@@ -129,6 +129,7 @@ def similarity(mesh_set, arg1 = 4000, mu = 0.0005, arg2 = 128, arg3 = 0.5):
     Outputs
         :returns: <dict> mapping mesh -> most similar other mesh
     """
+    sims = []
     model_paths = []
     for i, mesh in enumerate(mesh_set):
         faces, vertices = mesh.face_matrix(), mesh.vertex_matrix()
@@ -140,30 +141,38 @@ def similarity(mesh_set, arg1 = 4000, mu = 0.0005, arg2 = 128, arg3 = 0.5):
     command_0 = "echo " + "\n".join(model_path for model_path in model_paths)
     process_0 = _exec(command_0, keep_output = True)
 
-    command_1 = f"xargs  java -cp \"{reeb_graph}/src/\" -Xmx1024m ExtractReebGraph {arg1} {mu} {arg2}"
-    process_1 = _exec(command_1, stdin = process_0.stdout)
-
+    command_1 = f"xargs  java -cp \"{reeb_graph}/src/\" -Xmx120000m ExtractReebGraph {arg1} {mu} {arg2}"
+    process_1 = _exec(command_1, stdin = process_0.stdout, wait = wait)
+    
+    out = process_1.stdout.decode('utf8').strip().split("\n")
+    for line in out:
+        print(f"[process 1] >> {line}")
+        
     command_0 = "echo " + "\n".join(model_path for model_path in model_paths)
     process_0 = _exec(command_0, keep_output = True)
-
-    command_2 = f"xargs  java -cp \"{reeb_graph}/src/\" -Xmx1024m CompareReebGraph {arg1} {mu} {arg2} {arg3}" 
-    process_2 = _exec(command_2, stdin = process_0.stdout)
     
+    command_2 = f"xargs  java -cp \"{reeb_graph}/src/\" -Xmx120000m CompareReebGraph {arg1} {mu} {arg2} {arg3}"
+    process_2 = _exec(command_2, stdin = process_0.stdout, wait = wait)
+    # print(process_2.stdout.read().strip().split("\n"))
     out = process_2.stdout.decode('utf8').strip().split("\n")
     for line in out:
+        print(f"[process 2] >> {line}")
         model_1, model_2, sim = line.split(",")
         name_1, _ = os.path.splitext(model_1)
         name_2, _ = os.path.splitext(model_2)
         name_1, name_2 = name_1.split("/")[-1], name_2.split("/")[-1]
 
+        sims.append(sim)
         print(f"[out] >> {name_1} ~ {name_2} = {float(sim):.3f}")
     
     _exec(f"rm -rf {models_dir}")
     _exec(f"mkdir {models_dir}")
 
     for i, mesh in enumerate(mesh_set):
-        ms.set_current_mesh(i)
-        ms.save_current_mesh(f"{models_dir}/model_{i}.obj")
+        mesh_set.set_current_mesh(i)
+        mesh_set.save_current_mesh(f"{models_dir}/model_{i}.obj")
+    
+    return sims
 
 ### Helper Functions ###
 def _exec(command: str, wait: int = None, stdin = None, keep_output = False) -> subprocess:
@@ -183,6 +192,7 @@ def _exec(command: str, wait: int = None, stdin = None, keep_output = False) -> 
     else: process = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=stdin)
         
     if wait is not None: sleep(wait)
+    print("--- Done ---")
     return process
 
 def _save_as_wrl(faces, vertices, path):
@@ -208,10 +218,10 @@ def _save_as_wrl(faces, vertices, path):
         wrl.write(wrl_footer) 
     # print("--- Done ---")
 
-if __name__ == "__main__":
-    mesh_path_1 = "/home/ubuntu/fa3ds/backend/assemble/Experiments/model_20/5_segmentation/segment_1.0/segment_1.0.obj"
-    mesh_path_2 = "/home/ubuntu/fa3ds/backend/assemble/Experiments/model_20/5_segmentation/segment_2.0/segment_2.0.obj"
-    ms = pymeshlab.MeshSet()
-    ms.load_new_mesh(mesh_path_1)
-    ms.load_new_mesh(mesh_path_2)
-    similarity(ms)
+# if __name__ == "__main__":
+#     mesh_path_1 = "/home/ubuntu/fa3ds/backend/results/api_segmented_models/model_19/segment_0.0/segment_0.0.obj"
+#     mesh_path_2 = "/home/ubuntu/fa3ds/backend/results/api_segmented_models/model_19/segment_1.0/segment_1.0.obj"
+#     ms = pymeshlab.MeshSet()
+#     ms.load_new_mesh(mesh_path_1)
+#     ms.load_new_mesh(mesh_path_2)
+#     similarity(ms)

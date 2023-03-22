@@ -5,5 +5,5 @@ from . import views
 from django.urls import path
 
 urlpatterns = [
-    path("assemble", views.assemble, name = "assemble"),
+    path("", views.assemble, name = "assemble"),
 ]

@@ -1,9 +1,6 @@
 import pymeshlab
-
-### Global Constants ###
-heuristics = {
-    "connectedness": connectedness
-}
+import numpy as np
+from vertex_graph import VertexGraph
 
 def check_heuristics(mesh_set):
     """
@@ -18,9 +15,9 @@ def check_heuristics(mesh_set):
     """
     for name, heuristic in heuristics.items():
         if not heuristic(mesh_set): 
-            print(f"\033[31m[{name}] Failed!\033[39m")
+            print(f"\033[31m[{name}] Failed for {len(mesh_set)} meshes!\033[39m")
             return False
-        print(f"\033[32m[{name}] Passed!\033[39m")
+        print(f"\033[32m[{name}] Passed for {len(mesh_set)} meshes!\033[39m")
     return True
 
 ### Heuristic ###
@@ -50,11 +47,16 @@ def connectedness(mesh_set):
                     vertices.append(vertex_matrix[v])
                 face[k] = vert_map[tuple(vertex_matrix[v])]             
             faces.append(face)
-            f_color_matrix.append(colors[i][1])
     
     faces = np.array(faces)
     vertices = np.array(vertices)
 
     ### Construct graph and check if it is connected or not (preform bfs)
+    vertex_graph = VertexGraph(faces, vertices.shape[0])
 
-    return True
+    return vertex_graph.connected()
+
+### Global Constants ###
+heuristics = {
+    "connectedness": connectedness
+}
