@@ -42,20 +42,20 @@ def add_mesh(self, mesh_name, vertices, faces):
 def fetch(self, context, i):
     mesh_dir = context.scene.mesh_dir
 
-    mesh_name = "Loaded"
+    mesh_prefix = "Loaded"
     url = f"{domain}/fetch/"
 
     data = json.dumps({'i': i, 'mesh_dir': mesh_dir})
     try:
         response = requests.post(url = url, json = data).json()
         
-        faces = response['faces']
         failed = response['failed']
-        meshId = response['meshId']
-        labels = response['labels']
-        vertices = response['vertices']
+        meshIds = response['meshIds']
+        faces_list = response['faces']
+        labels_list = response['labels']
         num_meshes = response['numMeshes']
-        face_segments = response['face_segments']
+        vertices_list = response['vertices']
+        face_segments_list = response['face_segments']
         self.report({'INFO'}, f"Loaded mesh successfully!")
 
         context.scene.i = i 
@@ -64,33 +64,45 @@ def fetch(self, context, i):
             self.report({'WARNING'}, f"Failed to load mesh {i}")
             return {'FINISHED'}
         
-        if faces is None: 
+        if len(faces_list) == 0: 
             self.report({'INFO'}, f"No more meshes inside directory {mesh_dir}")
             return {'FINISHED'}
 
-        # Remove old mesh   
-        remove_mesh(self, mesh_name)
-        context.scene.face_count = len(faces)
-        context.scene.vertex_count = len(vertices)
+        for i in range(1000): 
+            try: remove_mesh(self, f"{mesh_prefix}_{i}")
+            except: continue
 
-        # Add new mesh
-        new_object = add_mesh(self, mesh_name, vertices, faces)
+        for i in range(len(meshIds)):
+            meshId = meshIds[i]
+            faces = faces_list[i]
+            labels = labels_list[i]
+            vertices = vertices_list[i]
+            face_segments = face_segments_list[i]
 
-        if face_segments is not None:
-            k = len(set(face_segments))
+            mesh_name = f"{mesh_prefix}_{i}"
+            # Remove old mesh   
+            remove_mesh(self, mesh_name)
+            context.scene.face_count = len(faces)
+            context.scene.vertex_count = len(vertices)
 
-            for stored_models in context.scene.models: 
-                if stored_models.name == mesh_name.lower(): 
-                    model = stored_models
+            # Add new mesh
+            new_object = add_mesh(self, mesh_name, vertices, faces)
+
+            if face_segments is not None:
+                k = len(set(face_segments))
+
+                for stored_models in context.scene.models: 
+                    if stored_models.name == mesh_name.lower(): 
+                        model = stored_models
+                        model.id = meshId
+                        break
+                else: 
+                    model = context.scene.models.add()
+                    model.name = mesh_name.lower()
                     model.id = meshId
-                    break
-            else: 
-                model = context.scene.models.add()
-                model.name = mesh_name.lower()
-                model.id = meshId
-            model.segmented = True
-            assign_materials(self, new_object, k, face_segments, context, labels, model)
-            self.report({'INFO'}, f"[labels] >> {len(labels)} == {k} {labels}")
+                model.segmented = True
+                assign_materials(self, new_object, k, face_segments, context, labels, model)
+                self.report({'INFO'}, f"[labels] >> {len(labels)} == {k} {labels}")
 
     except Exception as error: 
         self.report({'ERROR'}, f"Error occured while fetching mesh\n{report(traceback.format_exc())}")
@@ -106,8 +118,9 @@ def assign_materials(self, mesh, k, face_segments, context, labels, model):
     segemnt_to_faces = {i: [] for i in range(m)}
     
     for i in range(n): segemnt_to_faces[face_segments[i]].append(i)
-
+    
     for i in range(k):
+        self.report({'INFO'}, f"Assigning material {i} ...")
         material = bpy.data.materials.new(''.join(['mat', mesh.name, str(i)]))
         material.diffuse_color = colors[f"{i}"][1]
         mesh.data.materials.append(material)
@@ -121,6 +134,21 @@ def assign_materials(self, mesh, k, face_segments, context, labels, model):
         segment.faces = "\n".join(str(j) for j in segemnt_to_faces[i])
         segment.is_form = True if segment.label == "form" else False
         segment.is_func = True if segment.label == "function" else False
+
+        vertex_map = {}
+        face_matrix = []
+        vertex_matrix = []
+        for j in segemnt_to_faces[i]:
+            face = []
+            for vertex in mesh.data.polygons[j].vertices: 
+                if vertex not in vertex_map:
+                    vertex_map[vertex] = len(vertex_matrix)
+                vertex_matrix.append(mesh.data.vertices[vertex].co[:])
+                face.append(vertex_map[vertex])
+            face_matrix.append(face)
+
+        segment.vertex_matrix = json.dumps(vertex_matrix)
+        segment.face_matrix = json.dumps(face_matrix)
 
     for i, label in enumerate(face_segments):
         mesh.data.polygons[i].material_index = int(label)

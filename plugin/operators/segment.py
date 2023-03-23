@@ -78,8 +78,8 @@ class Segment_OT_Op(bpy.types.Operator):
                         model.name = mesh_name.lower()
                         model.id = meshId
                     model.segmented = True
-
-                    assign_materials(new_object, k, face_segments, context, labels, model)
+                    self.report({'INFO'}, f"Assigning {k} materials ...")
+                    assign_materials(self, new_object, k, face_segments, context, labels, model)
 
                 except Exception as error: print(f"Error occured while segmenting mesh\n{report(traceback.format_exc())}")
                 
