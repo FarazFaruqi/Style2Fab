@@ -5,7 +5,7 @@ import shlex, subprocess
 from io import BytesIO
 
 ### Global Constants ###
-reeb_graph = "/home/ubuntu/reeb_graph"
+reeb_graph = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/reeb_graph"
 models_dir = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/models"
 wrl_header = \
 """
@@ -141,23 +141,20 @@ def similarity(mesh_set, wait = None, arg1 = 4000, mu = 0.0005, arg2 = 128, arg3
     command_0 = "echo " + "\n".join(model_path for model_path in model_paths)
     process_0 = _exec(command_0, keep_output = True)
 
-    command_1 = f"xargs  java -cp \"{reeb_graph}/src/\" -Xmx120000m ExtractReebGraph {arg1} {mu} {arg2}"
+    command_1 = f"xargs  java -cp \"{reeb_graph}/src/\" -Xmx16384m ExtractReebGraph {arg1} {mu} {arg2}"
     process_1 = _exec(command_1, stdin = process_0.stdout, wait = wait)
-    
-    out = process_1.stdout.decode('utf8').strip().split("\n")
-    for line in out:
-        print(f"[process 1] >> {line}")
         
     command_0 = "echo " + "\n".join(model_path for model_path in model_paths)
     process_0 = _exec(command_0, keep_output = True)
     
-    command_2 = f"xargs  java -cp \"{reeb_graph}/src/\" -Xmx120000m CompareReebGraph {arg1} {mu} {arg2} {arg3}"
+    command_2 = f"xargs  java -cp \"{reeb_graph}/src/\" -Xmx16384m CompareReebGraph {arg1} {mu} {arg2} {arg3}"
     process_2 = _exec(command_2, stdin = process_0.stdout, wait = wait)
-    # print(process_2.stdout.read().strip().split("\n"))
-    out = process_2.stdout.decode('utf8').strip().split("\n")
+
+    out = process_2.split("\n")
     for line in out:
-        print(f"[process 2] >> {line}")
-        model_1, model_2, sim = line.split(",")
+        try:
+            model_1, model_2, sim = line.split(",")
+        except: continue
         name_1, _ = os.path.splitext(model_1)
         name_2, _ = os.path.splitext(model_2)
         name_1, name_2 = name_1.split("/")[-1], name_2.split("/")[-1]
@@ -188,13 +185,27 @@ def _exec(command: str, wait: int = None, stdin = None, keep_output = False) -> 
     """
     # print(f"[cmd] >> {command}")
     command = shlex.split(command)
-    if not keep_output: process = subprocess.run(command, stdout=subprocess.PIPE, stdin=stdin)
-    else: process = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=stdin)
+    if not keep_output: 
+        process = ""
+        for out in _run(stdin, command):
+            print(out, end="")
+            process += f"{out}\n"
+    else: process = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=stdin, universal_newlines=True)
+        
         
     if wait is not None: sleep(wait)
     print("--- Done ---")
     return process
 
+def _run(stdin, command):
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stdin=stdin, universal_newlines=True)
+    for stdout_line in iter(process.stdout.readline, ""):
+        yield stdout_line 
+    process.stdout.close()
+    return_code = process.wait()
+    if return_code:
+        raise subprocess.CalledProcessError(return_code, command)
+    
 def _save_as_wrl(faces, vertices, path):
     """
     Export given list of Mesh objects to a VRML file.
@@ -218,10 +229,10 @@ def _save_as_wrl(faces, vertices, path):
         wrl.write(wrl_footer) 
     # print("--- Done ---")
 
-# if __name__ == "__main__":
-#     mesh_path_1 = "/home/ubuntu/fa3ds/backend/results/api_segmented_models/model_19/segment_0.0/segment_0.0.obj"
-#     mesh_path_2 = "/home/ubuntu/fa3ds/backend/results/api_segmented_models/model_19/segment_1.0/segment_1.0.obj"
-#     ms = pymeshlab.MeshSet()
-#     ms.load_new_mesh(mesh_path_1)
-#     ms.load_new_mesh(mesh_path_2)
-#     similarity(ms)
+if __name__ == "__main__":
+    mesh_path_1 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_0.0/segment_0.0.obj"
+    mesh_path_2 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_1.0/segment_1.0.obj"
+    ms = pymeshlab.MeshSet()
+    ms.load_new_mesh(mesh_path_1)
+    ms.load_new_mesh(mesh_path_2)
+    similarity(ms)

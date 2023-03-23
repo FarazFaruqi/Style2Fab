@@ -4,9 +4,11 @@ assemble views
 import os
 import sys
 import json
+import random
 import traceback
 import pymeshlab
 import numpy as np
+import pandas as pd
 from rest_framework import status
 from django.shortcuts import render
 from utils.view_helpers import _is_subset, report
@@ -15,6 +17,7 @@ from rest_framework.decorators import api_view
 from .assemble_utils.similarity import similarity
 
 ### Global Constants ###
+all_similarity = "/home/ubuntu/fa3ds/backend/assemble/assemble_utils/all_similarity.csv"
 default_models_dir = "/home/ubuntu/fa3ds/backend/results/segmented_models"
 
 @api_view(['POST'])
@@ -53,10 +56,21 @@ def assemble(request, *args, **kwargs):
 
                 try:
                     print(f"Initiating similarity measuring ...")
-                    # sim = similarity(ms, wait=None)
-                    sim = 0
-                    if (mesh_id, i) in similarities: similarities[(mesh_id, i)].append(((other_id, j), sim))
-                    else: similarities[i] = [((other_id, j), sim)]
+                    # sim = similarity(ms, wait=None)[1]
+                    # sim = random.uniform(0, 1)
+                    
+                    if os.path.isfile(all_similarity): 
+                        sim_df = pd.read_csv(all_similarity)
+                        sim = list(sim_df[(sim_df['meshId'] == mesh_id)   & 
+                                            (sim_df['otherId'] == other_id) & 
+                                            (((sim_df['i'] == i) & (sim_df['j'] == j)) |
+                                            ((sim_df['j'] == i) & (sim_df['i'] == j)))
+                                            ]['sim'])
+                        if len(sim) > 0: sim = sim[-1]
+                        else: sim = 0
+
+                    if f"{mesh_id},{i}" in similarities: similarities[f"{mesh_id},{i}"].append(((other_id, j), sim))
+                    else: similarities[f"{mesh_id},{i}"] = [((other_id, j), sim)]
 
                     print(f"[sim] >> segment {i} ~ segment {j} = {float(sim):.3f}")
                 except Exception as error: 

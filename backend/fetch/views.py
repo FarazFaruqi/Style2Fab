@@ -54,54 +54,19 @@ def fetch(request, *args, **kwargs):
         ]
         
         try:
-            num_meshes = 0
-            mesh_found = False
-            for file in os.listdir(mesh_dir): 
-                mesh_path = f"{mesh_dir}/{file}"
-                
-                if os.path.isfile(mesh_path):
-                    mesh_name, mesh_ext = os.path.splitext(mesh_path)
-                    if mesh_ext != ".obj": continue
-                    num_meshes += 1
-                    if mesh_found: continue
-
-                    if i == 0: 
-                        ms = pymeshlab.MeshSet()
-                        ms.load_new_mesh(mesh_path)
-                        mesh = ms.current_mesh()
-                        print(f"Found mesh at {mesh_path}!")
-                        mesh_found = True
-                    i -= 1
-
-                if os.path.isdir(mesh_path):
-                    try:
-                        # print(f"Searching {mesh_path} ...")
-                        num_meshes += 1
-                        if mesh_found: continue
-                        if i == 0: 
-                            mesh, face_segments = reconstruct_mesh(mesh_path)
-                            print(f"Found segmented mesh at {mesh_path}!")
-                            labels_path = f"{mesh_path}/labels_{len(set(face_segments))}.csv"
-                            if os.path.isfile(labels_path): 
-                                labels_df = pd.read_csv(labels_path)
-                                labels = list(labels_df['label'])
-
-                            mesh_found = True
-                    except Exception as error:                 
-                        print(report(f"failed on {mesh_path}\n{traceback.format_exc()}"))
-                    i -= 1
+            meshes, meshes_found, face_segments_list, num_meshes = _find_mesh(mesh_dir, i)
         except Exception as error: print(report(traceback.format_exc()))
 
         if mesh is not None:
-            faces = list(mesh.face_matrix())
-            vertices = list(mesh.vertex_matrix())
-        if face_segments is not None: 
-            face_segments = list(face_segments)
+            faces = [list(mesh.face_matrix()) for mesh in meshes]
+            vertices = [list(mesh.vertex_matrix()) for mesh in meshes]
+        # if face_segments is not None: 
+        #     face_segments = list(face_segments)
 
         data['faces'] = faces
         data['vertices'] = vertices
-        data['face_segments'] = face_segments
-        data['meshId'] = mesh_path
+        data['face_segments'] = face_segments_list
+        data['meshId'] = meshes_found
         data['numMeshes'] = num_meshes
         data['failed'] = True if mesh is None else False
         print(f"[numMeshes] >> {data['numMeshes']}")
@@ -109,3 +74,52 @@ def fetch(request, *args, **kwargs):
         data['labels'] = labels
         
     return Response(data = data, status = fetch_status)
+
+### Helper Functions ###
+def _find_mesh(mesh_dir, i):
+    num_meshes = 0
+    meshes = []
+    meshes_found = []
+    face_segments_list = []
+    for file in os.listdir(mesh_dir): 
+        mesh_path = f"{mesh_dir}/{file}"
+        
+        if os.path.isfile(mesh_path):
+            mesh_name, mesh_ext = os.path.splitext(mesh_path)
+            if mesh_ext != ".obj": continue
+            num_meshes += 1
+            if meshes_found is not None: continue
+
+            if i == 0: 
+                ms = pymeshlab.MeshSet()
+                ms.load_new_mesh(mesh_path)
+                mesh = ms.current_mesh()
+                meshes.append(mesh)
+                print(f"Found mesh at {mesh_path}!")
+                meshes_found.append(mesh_path)
+            i -= 1
+
+        if os.path.isdir(mesh_path):
+            try:
+                # print(f"Searching {mesh_path} ...")
+                num_meshes += 1
+                if len(meshes_found) > 0: continue
+                if i == 0: 
+                    mesh, face_segments = reconstruct_mesh(mesh_path)
+                    meshes.append(mesh)
+                    face_segments_list.append(face_segments)
+                    print(f"Found segmented mesh at {mesh_path}!")
+                    labels_path = f"{mesh_path}/labels_{len(set(face_segments))}.csv"
+                    if os.path.isfile(labels_path): 
+                        labels_df = pd.read_csv(labels_path)
+                        labels = list(labels_df['label'])
+
+                    meshes_found.append(mesh_path)
+            except Exception as error:
+                print(report(f"failed on {mesh_path}\n{traceback.format_exc()}"))
+                child_meshes, child_meshes_found, child_face_segments, _ = _find_mesh(mesh_path, i, meshes_found)
+                meshes += child_meshes_found
+                meshes_found += child_meshes_found
+                face_segments_list += child_face_segments
+            i -= 1
+    return meshes, meshes_found, face_segments_list, num_meshes
