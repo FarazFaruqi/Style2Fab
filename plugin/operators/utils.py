@@ -143,7 +143,7 @@ def assign_materials(self, mesh, k, face_segments, context, labels, model):
             for vertex in mesh.data.polygons[j].vertices: 
                 if vertex not in vertex_map:
                     vertex_map[vertex] = len(vertex_matrix)
-                vertex_matrix.append(mesh.data.vertices[vertex].co[:])
+                    vertex_matrix.append(mesh.data.vertices[vertex].co[:])
                 face.append(vertex_map[vertex])
             face_matrix.append(face)
 

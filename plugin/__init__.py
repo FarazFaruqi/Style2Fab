@@ -51,9 +51,6 @@ class Segments(bpy.types.PropertyGroup):
     is_func: BoolProperty(default = False)
     selected: BoolProperty(default = False)
 
-# class SegmentEnum(bpy.types.PropertyGroup):
-#     segment_enum: EnumProperty(name = "", items = get_segments)
-
 class Model(bpy.types.PropertyGroup):
     id: StringProperty()
     name: StringProperty()

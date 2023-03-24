@@ -30,12 +30,21 @@ class Assemble_OT_Op(bpy.types.Operator):
                 context.scene.assembly_enums.add()
                 context.scene.assembly_enums.add()
 
+            # found = 0
             mesh_set = []
+            # assembly_enums = context.scene.assembly_enums
             for model in context.scene.models:
                 self.report({'INFO'}, f"[model name] >> {model.name}")
+                # if (f"{model.name.lower()}" == assembly_enums[0].model_enum) or \
+                #    (f"{model.name.lower()}" == assembly_enums[1].model_enum):
                 for segment in model.segments:
+                        # if (f"{segment.i}" == model.segment_enum) or \
+                        #    (f"{segment.i}" == model.segment_enum):
                     mesh_set.append((model.id, segment.i, json.loads(segment.face_matrix), json.loads(segment.vertex_matrix)))
-                
+                            # found += 1
+                #     if found == 2: break
+                # if found == 2: break
+
             data = json.dumps({'meshSet': mesh_set})
 
             url = f"{domain}/assemble/"
