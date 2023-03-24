@@ -117,7 +117,7 @@ public class CompareReebGraph {
 		String argument[] = new String [2];
 		argument[0] = arg[i];
 		argument[1] = arg[j];
-		System.out.println("Computing similarity between " + arg[i] + " and " + arg[j]);
+		System.out.println("[reeb] >> computing similarity between " + arg[i] + " and " + arg[j]);
 		main_one(argument);
 		
 		// out.println("Similarity between " + arg[i] + " and " + arg[j] + " is " + SIM_R_S);
@@ -138,26 +138,26 @@ public class CompareReebGraph {
 	MRG1 = null;
 	MRG2 = null;
 	
-	System.out.println("Reading " + arg[0] + " and " + arg[1]);
+	System.out.println("[reeb] >> reading " + arg[0] + " and " + arg[1]);
 	//read both of the objects from mrg files
 	readOneFile(arg[0]);
 	readOneFile(arg[1]);
 	
 	if(MRG1.size() != MRG2.size()){
-	    System.out.println("ERROR: number of resolutions must match! Exiting...");
+	    System.out.println("\033[31m[ERROR] >> number of resolutions must match! Exiting...\033[0m\n");
 	    System.exit(1);	    
 	}
 	
-	System.out.println("Computing rest attributes " + arg[0] + " and " + arg[1]);
+	System.out.println("[reeb] >> computing rest attributes " + arg[0] + " and " + arg[1]);
 	//calculate the attributes for the pair of MRGs
 	calculateRestAttributes(MRG1, attributes1);
 	calculateRestAttributes(MRG2, attributes2);
 	
-	System.out.println("Computing parents ...");
+	System.out.println("[reeb] >> computing parents ...");
 	//computes parents in each MRG
 	computeParents();
 	
-	System.out.println("Doing comparison " + arg[0] + " and " + arg[1]);
+	System.out.println("[reeb] >> Doing comparison " + arg[0] + " and " + arg[1]);
 	//compare two MRGs 
 	doComparison(arg);
 	
@@ -196,15 +196,18 @@ public class CompareReebGraph {
 	NLIST.addElement(list2);
 	
 	Integer prevSize = list1.size();
+	Integer iterCount = 0;
 	while(list1.size() != 0 && list2.size() != 0){
+		iterCount++;
 	    lookForMatchingPair(str);
-		System.out.println("Looking for matching pair ...");
+		// System.out.println("Looking for matching pair ...");
 		if (prevSize == list1.size()) {
-			System.out.println("Stuck at l1 with size " + prevSize);
-			break;
+			System.out.println("[" + iterCount + "] >> stuck at l1 with size " + prevSize);
+			// break;
 		};
 		prevSize = list1.size();
 	}
+	System.out.println("[reeb] >> ran for " + iterCount + " iterations");
 	
 
 
@@ -582,7 +585,7 @@ public class CompareReebGraph {
 	    }
 	    
 	    if(select_nlist == select_nlist2)
-		System.out.println("WARNING in CompareReebGraph.lookForMatchingPair(): select_nlist and select_nlist2 point to the same MRG!");
+		System.out.println("\033[32m\n[WARNING] >> in CompareReebGraph.lookForMatchingPair(): select_nlist and select_nlist2 point to the same MRG!\033[0m\n");
 	    	    
 	    what_res_m = calculateIndexInMRG1(m);
 	    what_res_n = calculateIndexInMRG2(n);

@@ -45,9 +45,10 @@ def assemble(request, *args, **kwargs):
             faces = np.array(faces)
             vertices = np.array(vertices)
             mesh = pymeshlab.Mesh(face_matrix=faces, vertex_matrix=vertices)
+        
             for other_id, j, faces_other, vertices_other in mesh_set:
-                faces = np.array(faces)
-                vertices = np.array(vertices)
+                faces_other = np.array(faces_other)
+                vertices_other = np.array(vertices_other)
                 mesh_other = pymeshlab.Mesh(face_matrix=faces_other, vertex_matrix=vertices_other)
                 
                 ms = pymeshlab.MeshSet()
@@ -56,8 +57,6 @@ def assemble(request, *args, **kwargs):
 
                 try:
                     print(f"Initiating similarity measuring ...")
-                    # sim = similarity(ms, wait=None)[1]
-                    # sim = random.uniform(0, 1)
                     
                     if os.path.isfile(all_similarity): 
                         sim_df = pd.read_csv(all_similarity)
@@ -67,7 +66,7 @@ def assemble(request, *args, **kwargs):
                                             ((sim_df['j'] == i) & (sim_df['i'] == j)))
                                             ]['sim'])
                         if len(sim) > 0: sim = sim[-1]
-                        else: sim = 0
+                        else: sim = similarity(ms, wait=None)[1]
 
                     if f"{mesh_id},{i}" in similarities: similarities[f"{mesh_id},{i}"].append(((other_id, j), sim))
                     else: similarities[f"{mesh_id},{i}"] = [((other_id, j), sim)]

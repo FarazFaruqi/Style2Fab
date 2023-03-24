@@ -133,6 +133,8 @@ def similarity(mesh_set, wait = None, arg1 = 4000, mu = 0.0005, arg2 = 128, arg3
     model_paths = []
     for i, mesh in enumerate(mesh_set):
         faces, vertices = mesh.face_matrix(), mesh.vertex_matrix()
+        print(f"[faces] >> ({type(faces)}) ({faces.shape})")
+        print(f"[vertices] >> ({type(vertices)}) ({vertices.shape})")
         model_path = f"{models_dir}/model_{i}.wrl"
 
         model_paths.append(model_path)
@@ -229,10 +231,25 @@ def _save_as_wrl(faces, vertices, path):
         wrl.write(wrl_footer) 
     # print("--- Done ---")
 
-if __name__ == "__main__":
-    mesh_path_1 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_0.0/segment_0.0.obj"
-    mesh_path_2 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_1.0/segment_1.0.obj"
-    ms = pymeshlab.MeshSet()
-    ms.load_new_mesh(mesh_path_1)
-    ms.load_new_mesh(mesh_path_2)
-    similarity(ms)
+# if __name__ == "__main__":
+    # mesh_path_1 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_0.0/segment_0.0.obj"
+    # mesh_path_2 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_1.0/segment_1.0.obj"
+    # mesh_path_3 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_2.0/segment_2.0.obj"
+    # mesh_path_4 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_3.0/segment_3.0.obj"
+    # mesh_path_5 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_4.0/segment_4.0.obj"
+    # mesh_path_6 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_5.0/segment_5.0.obj"
+    # mesh_path_7 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_6.0/segment_6.0.obj"
+    # mesh_path_8 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_7.0/segment_7.0.obj"
+    # mesh_path_9 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_8.0/segment_8.0.obj"
+    # ms = pymeshlab.MeshSet()
+    # ms.load_new_mesh(mesh_path_1)
+    # ms.load_new_mesh(mesh_path_2)
+    # ms.load_new_mesh(mesh_path_3)
+    # ms.load_new_mesh(mesh_path_4)
+    # ms.load_new_mesh(mesh_path_5)
+    # ms.load_new_mesh(mesh_path_6)
+    # ms.load_new_mesh(mesh_path_7)
+    # ms.load_new_mesh(mesh_path_8)
+    # ms.load_new_mesh(mesh_path_9)
+  
+    # similarity(ms)
