@@ -231,7 +231,7 @@ def _save_as_wrl(faces, vertices, path):
         wrl.write(wrl_footer) 
     # print("--- Done ---")
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
     # mesh_path_1 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_0.0/segment_0.0.obj"
     # mesh_path_2 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_1.0/segment_1.0.obj"
     # mesh_path_3 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_2.0/segment_2.0.obj"
@@ -241,15 +241,29 @@ def _save_as_wrl(faces, vertices, path):
     # mesh_path_7 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_6.0/segment_6.0.obj"
     # mesh_path_8 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_7.0/segment_7.0.obj"
     # mesh_path_9 = "/home/ubuntu/fa3ds/backend/results/study_models/component_0_model_15/segment_8.0/segment_8.0.obj"
-    # ms = pymeshlab.MeshSet()
-    # ms.load_new_mesh(mesh_path_1)
-    # ms.load_new_mesh(mesh_path_2)
-    # ms.load_new_mesh(mesh_path_3)
-    # ms.load_new_mesh(mesh_path_4)
-    # ms.load_new_mesh(mesh_path_5)
-    # ms.load_new_mesh(mesh_path_6)
-    # ms.load_new_mesh(mesh_path_7)
-    # ms.load_new_mesh(mesh_path_8)
-    # ms.load_new_mesh(mesh_path_9)
-  
-    # similarity(ms)
+    alpaca = "/home/ubuntu/fa3ds/backend/results/user_study/alpaca"
+    cat = "/home/ubuntu/fa3ds/backend/results/user_study/cat"
+    fillacutter = "/home/ubuntu/fa3ds/backend/results/user_study/fillacutter_base"
+    horse = "/home/ubuntu/fa3ds/backend/results/user_study/horse"
+    
+    log = "/home/ubuntu/fa3ds/backend/results/user_study/similarity.csv"
+    meshes = [fillacutter, alpaca, cat, horse]
+    for mesh in meshes:
+        components = []
+        n = len(os.listdir(mesh))
+        for k1 in range(n):
+            component_1 = f"{mesh}/model_{k1}"
+            m1 = len([1 for segment in os.listdir(component_1) if os.path.isdir(f"{component_1}/{segment}")])
+            for i in range(m1):
+                for k2 in range(k1 + 1, n):
+                    component_2 = f"{mesh}/model_{k2}"
+                    m2 = len([1 for segment in os.listdir(component_2) if os.path.isdir(f"{component_2}/{segment}")])
+                    for j in range(m2):
+                        ms = pymeshlab.MeshSet()
+                        ms.load_new_mesh(f"{component_1}/segment_{i}.0/segment_{i}.0.obj")
+                        ms.load_new_mesh(f"{component_2}/segment_{j}.0/segment_{j}.0.obj")
+                        sims = similarity(ms)
+                        ms.clear()
+                        with open(log, "a") as log_file:
+                            log_file.write(f"{component_1},{component_2},{i},{j},{sims[1]}\n")
+                            log_file.write(f"{component_2},{component_1},{j},{i},{sims[1]}\n")

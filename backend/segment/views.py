@@ -53,7 +53,7 @@ def segment(request, *args, **kwargs):
         parent_dir = f"{default_models_dir}/model_{mesh_id}"
 
         mesh = pymeshlab.Mesh(vertices, faces)
-        mesh = _remesh(mesh)
+        # mesh = _remesh(mesh)
 
         start_time = time()
         k, labels = segment_mesh(mesh, None, extract = True, collapsed = collapsed, parent_dir = parent_dir, mesh_dir = parent_dir)

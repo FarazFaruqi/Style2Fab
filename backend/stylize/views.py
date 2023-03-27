@@ -42,7 +42,7 @@ def stylize(request, *args, **kwargs):
         selection = request['selection']
         faces = np.array(request['faces'])
         vertices = np.array(request['vertices'])
-        n_iter = 200 
+        n_iter = 1200 
 
         mesh = pymeshlab.Mesh(vertices, faces)
         if remesh: mesh = _remesh(mesh)
