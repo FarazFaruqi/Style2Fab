@@ -14,14 +14,14 @@ from .panels.edit import Edit_PT_Panel
 from .panels.style import Style_PT_Panel
 from .panels.segment import Segment_PT_Panel
 from .panels.fetch import MeshSelection_PT_Panel
-from .panels.assembly import Assemble_PT_Panel
+from .panels.similarity import Similarity_PT_Panel
 
 from .operators.edit import Edit_OT_Op
 from .operators.delete import Delete_OT_Op
 from .operators.segment import Segment_OT_Op
 from .operators.stylize import Stylize_OT_Op
 from .operators.annotate import Annotate_OT_Op
-from .operators.assembly import Assemble_OT_Op
+from .operators.similarity import Similarity_OT_Op
 from .operators.select_mesh import Prev_OT_Op, Next_OT_Op
 from .operators.select_segment import PrevSeg_OT_Op, NextSeg_OT_Op, SelectFunc_OT_Op
 from bpy.props import StringProperty, CollectionProperty, BoolProperty, IntProperty, EnumProperty, FloatProperty
@@ -81,7 +81,7 @@ classes = (
     PrevSeg_OT_Op,
     NextSeg_OT_Op,
     Annotate_OT_Op,
-    Assemble_OT_Op,
+    Similarity_OT_Op,
     SelectFunc_OT_Op,
 
     Segments, 
@@ -91,7 +91,7 @@ classes = (
     Simalrity,
 
     Segment_PT_Panel,
-    Assemble_PT_Panel,
+    Similarity_PT_Panel,
     Style_PT_Panel,
     Edit_PT_Panel, 
     MeshSelection_PT_Panel,
@@ -120,7 +120,7 @@ props = {
 
     'mesh_dir': StringProperty(
         name = "", 
-        default = "/home/ubuntu/fa3ds/backend/results/study_models"
+        default = "/home/ubuntu/fa3ds/user_study/models"
     ),
 
     'face_count': IntProperty(

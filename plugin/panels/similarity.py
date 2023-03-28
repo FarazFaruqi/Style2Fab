@@ -4,22 +4,22 @@ from bpy.props import EnumProperty
 
 ### Global Constants ###
 
-class Assemble_PT_Panel(Panel):
+class Similarity_PT_Panel(Panel):
     """
     AF() = a panel for SmartStyle3D
     """
     bl_region_type = "UI"
     bl_space_type = "VIEW_3D"
-    bl_label = "Assembly"
+    bl_label = "Similarity"
     bl_category = "FA3DS"
 
     def draw(self, context):
         """ Draws out the ui panel """
         layout = self.layout
 
-        assemble_row = layout.row()
-        assemble_col = assemble_row.column()
-        assemble_col.operator("mesh.assemble", icon = "PLUGIN")
+        similarity_row = layout.row()
+        similarity_col = similarity_row.column()
+        similarity_col.operator("mesh.similarity", icon = "PLUGIN")
 
         assembly_enums = context.scene.assembly_enums
         if len(assembly_enums) == 2:

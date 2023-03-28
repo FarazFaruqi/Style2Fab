@@ -25,20 +25,26 @@ class Stylize_OT_Op(bpy.types.Operator):
     def execute(self, context):
         """Executes the segmentation"""
         prompt = context.scene.prompt
-        obj = context.view_layer.objects.active
+        objs = [obj for obj in bpy.context.selected_objects]
         
-        vertices = []
-        for vertex in obj.data.vertices: vertices.append(vertex.co[:])
-
+        n = 0
         faces = []
-        for face in obj.data.polygons: faces.append([i for i in face.vertices])
-
+        vertices = []
         selection = []
-        mesh = bmesh.from_edit_mesh(obj.data)
-        for i, vertex in enumerate(mesh.verts):
-            if vertex.select: selection.append(i)
+        for obj in objs:
+            for i, vertex in enumerate(obj.data.vertices): 
+                vertices.append(vertex.co[:])
+
+            for face in obj.data.polygons: 
+                faces.append([n + i for i in face.vertices])
+            n = len(vertices)
+
+            mesh = bmesh.from_edit_mesh(obj.data)
+            for i, vertex in enumerate(mesh.verts):
+                if vertex.select: selection.append(n + i)
 
         url = f"{domain}/stylize/"
+        self.report({'INFO'}, f"Stylizing {len(objs)} meshes with {len(faces)} faces and {len(vertices)} vertices ...")
         
         data = json.dumps({'vertices': vertices, 'faces': faces, 'prompt': prompt, 'selection': selection, 'remesh': False})
         

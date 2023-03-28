@@ -153,9 +153,9 @@ def assign_materials(self, mesh, k, face_segments, context, labels, model):
     for i, label in enumerate(face_segments):
         mesh.data.polygons[i].material_index = int(label)
 
-def get_segment_vertices(self, context, j):
+def get_segment_vertices(self, context, j, obj = None):
     """ Gets all vertices of selected segment(s) """
-    obj = context.view_layer.objects.active
+    if obj is None: obj = context.view_layer.objects.active
     mesh = bmesh.from_edit_mesh(obj.data)
 
     for vertex in mesh.verts:
@@ -195,12 +195,12 @@ def extract_vertices(model, obj, j):
     
     return vertices
 
-def select_vertices(context, selected_vertices):
+def select_vertices(context, selected_vertices, obj = None):
     """ Selects all the vertices in selected_vertices in the UI and unselects all else """
     bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.mode_set(mode='EDIT')
 
-    obj = context.view_layer.objects.active
+    if obj is None: obj = context.view_layer.objects.active
     mesh = bmesh.from_edit_mesh(obj.data)
 
     for vertex in mesh.verts:

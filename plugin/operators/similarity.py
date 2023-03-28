@@ -4,15 +4,15 @@ import bmesh
 import requests 
 import traceback
 from bpy.props import EnumProperty
-from .utils import remove_mesh, add_mesh, domain, report
+from .utils import *
 
 ### Constants ###
 
-class Assemble_OT_Op(bpy.types.Operator):
-    """ Assemble a mesh """
+class Similarity_OT_Op(bpy.types.Operator):
+    """ Similarity between mesh segments """
 
-    bl_idname = "mesh.assemble"
-    bl_label = "Assemble mesh"
+    bl_idname = "mesh.similarity"
+    bl_label = "Compute Similarity"
     
     @classmethod
     def poll(cls, context):
@@ -30,21 +30,34 @@ class Assemble_OT_Op(bpy.types.Operator):
                 context.scene.assembly_enums.add()
                 context.scene.assembly_enums.add()
 
-            # found = 0
+            found = 0
             mesh_set = []
-            # assembly_enums = context.scene.assembly_enums
-            for model in context.scene.models:
-                self.report({'INFO'}, f"[model name] >> {model.name}")
-                # if (f"{model.name.lower()}" == assembly_enums[0].model_enum) or \
-                #    (f"{model.name.lower()}" == assembly_enums[1].model_enum):
-                for segment in model.segments:
-                        # if (f"{segment.i}" == model.segment_enum) or \
-                        #    (f"{segment.i}" == model.segment_enum):
-                    mesh_set.append((model.id, segment.i, json.loads(segment.face_matrix), json.loads(segment.vertex_matrix)))
-                            # found += 1
-                #     if found == 2: break
-                # if found == 2: break
 
+            assembly_enums = context.scene.assembly_enums
+            for model in context.scene.models:
+                selected_vertices = []
+                self.report({'INFO'}, f"[model name] >> {model.name}")
+                if (f"{model.name.lower()}" == assembly_enums[0].model_enum) or \
+                   (f"{model.name.lower()}" == assembly_enums[1].model_enum):
+                    selected_obj = None
+                    for obj in bpy.context.selected_objects:
+                        if obj.name.lower() == model.name.lower(): selected_obj = obj; break
+
+                    # deselect everything
+                    select_vertices(context, selected_vertices, selected_obj)
+
+                    for j, segment in enumerate(model.segments):
+                        if (f"{segment.i}" == model.segment_enum) or \
+                            (f"{segment.i}" == model.segment_enum):
+                            mesh_set.append((model.id, segment.i, json.loads(segment.face_matrix), json.loads(segment.vertex_matrix)))
+                            found += 1
+                            segment.selected = True
+                        else: segment.selected = False
+                        # if found == 2: break
+                    selected_vertices += get_segment_vertices(self, context, 0, selected_obj)
+                    select_vertices(context, selected_vertices, selected_obj)
+                    # if found == 2: break
+            
             data = json.dumps({'meshSet': mesh_set})
 
             url = f"{domain}/assemble/"
@@ -62,7 +75,8 @@ class Assemble_OT_Op(bpy.types.Operator):
                     context.scene.similarity[-1].sim = float(sim)
                     context.scene.similarity[-1].model_id = model_id.lower()
                     context.scene.similarity[-1].other_id = other_id.lower()
-
+            
+            self.report({'INFO'}, f"{len(selected_vertices)} vertices selected")
             self.report({'INFO'}, f"Computed similarities successfully!")
   
         except Exception as error: self.report({'ERROR'}, f"Error occured while assembleing mesh\n{report(traceback.format_exc())}")

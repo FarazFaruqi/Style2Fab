@@ -68,29 +68,31 @@ class SelectFunc_OT_Op(bpy.types.Operator):
     def poll(cls, context):
         """ Indicates weather the operator should be enabled """
         objs = context.selected_objects
-        if len(objs) == 1: return True
+        if len(objs) >= 1: return True
         print("Failed to get model because no object is selected")
         return False
 
     def execute(self, context):
         """Executes the segmentation"""
-        selected_vertices = [] 
-        # deselect everything
-        select_vertices(context, selected_vertices)
+        objs = [obj for obj in bpy.context.selected_objects]
 
-        num_func = 0
-        obj = context.view_layer.objects.active
-        for model in context.scene.models:
-            if model.name != obj.name.lower(): continue
-            if not model.segmented: continue
-            for i in range(len(model.segments)):
-                segment = model.segments[i]
-                if segment.is_func: segment.selected = True; num_func += 1
-                else: segment.selected = False
+        for obj in objs:
+            selected_vertices = [] 
+            # deselect everything
+            select_vertices(context, selected_vertices, obj)
 
-        if num_func > 0: selected_vertices += get_segment_vertices(self, context, 0)
-        
-        select_vertices(context, selected_vertices)
+            num_func = 0
+            for model in context.scene.models:
+                if model.name != obj.name.lower(): continue
+                if not model.segmented: continue
+                for i in range(len(model.segments)):
+                    segment = model.segments[i]
+                    if segment.is_func: segment.selected = True; num_func += 1
+                    else: segment.selected = False
+
+            if num_func > 0: selected_vertices += get_segment_vertices(self, context, 0)
+            
+            select_vertices(context, selected_vertices, obj)
 
         return {'FINISHED'}
     
