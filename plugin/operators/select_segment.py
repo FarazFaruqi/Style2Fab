@@ -85,12 +85,14 @@ class SelectFunc_OT_Op(bpy.types.Operator):
             for model in context.scene.models:
                 if model.name != obj.name.lower(): continue
                 if not model.segmented: continue
+                self.report({'INFO'}, f"Found {obj.name} == {model.name}")
                 for i in range(len(model.segments)):
                     segment = model.segments[i]
                     if segment.is_func: segment.selected = True; num_func += 1
                     else: segment.selected = False
+                break
 
-            if num_func > 0: selected_vertices += get_segment_vertices(self, context, 0)
+            if num_func > 0: selected_vertices += get_segment_vertices(self, context, 0, obj)
             
             select_vertices(context, selected_vertices, obj)
 

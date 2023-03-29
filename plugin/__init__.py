@@ -21,8 +21,8 @@ from .operators.delete import Delete_OT_Op
 from .operators.segment import Segment_OT_Op
 from .operators.stylize import Stylize_OT_Op
 from .operators.annotate import Annotate_OT_Op
-from .operators.similarity import Similarity_OT_Op
 from .operators.select_mesh import Prev_OT_Op, Next_OT_Op
+from .operators.similarity import Similarity_OT_Op, PrevSim_OT_Op, NextSim_OT_Op
 from .operators.select_segment import PrevSeg_OT_Op, NextSeg_OT_Op, SelectFunc_OT_Op
 from bpy.props import StringProperty, CollectionProperty, BoolProperty, IntProperty, EnumProperty, FloatProperty
 
@@ -80,6 +80,8 @@ classes = (
     Stylize_OT_Op, 
     PrevSeg_OT_Op,
     NextSeg_OT_Op,
+    PrevSim_OT_Op,
+    NextSim_OT_Op,
     Annotate_OT_Op,
     Similarity_OT_Op,
     SelectFunc_OT_Op,
@@ -103,12 +105,27 @@ props = {
         default = 'A vase made of wood'
     ),
 
+    'loaded': StringProperty(
+        name = "", 
+        default = 'Cube'
+    ),
+
     'num_segs': IntProperty(
         name = "", 
         default = 5
     ),
 
     'i': IntProperty(
+        name = "", 
+        default = 0
+    ),
+
+    't': FloatProperty(
+        name = "threshold", 
+        default = 0.8
+    ),
+
+    'sim_i': IntProperty(
         name = "", 
         default = 0
     ),

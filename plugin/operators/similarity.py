@@ -46,16 +46,17 @@ class Similarity_OT_Op(bpy.types.Operator):
                     # deselect everything
                     select_vertices(context, selected_vertices, selected_obj)
 
-                    for j, segment in enumerate(model.segments):
-                        if (f"{segment.i}" == model.segment_enum) or \
-                            (f"{segment.i}" == model.segment_enum):
-                            mesh_set.append((model.id, segment.i, json.loads(segment.face_matrix), json.loads(segment.vertex_matrix)))
-                            found += 1
-                            segment.selected = True
-                        else: segment.selected = False
-                        # if found == 2: break
-                    selected_vertices += get_segment_vertices(self, context, 0, selected_obj)
-                    select_vertices(context, selected_vertices, selected_obj)
+                    if selected_obj is not None:
+                        for j, segment in enumerate(model.segments):
+                            if (f"{segment.i}" == model.segment_enum) or \
+                                (f"{segment.i}" == model.segment_enum):
+                                mesh_set.append((model.id, segment.i, json.loads(segment.face_matrix), json.loads(segment.vertex_matrix)))
+                                found += 1
+                                segment.selected = True
+                            else: segment.selected = False
+                            # if found == 2: break
+                        selected_vertices += get_segment_vertices(self, context, 0, selected_obj)
+                        select_vertices(context, selected_vertices, selected_obj)
                     # if found == 2: break
             
             data = json.dumps({'meshSet': mesh_set})
@@ -82,5 +83,37 @@ class Similarity_OT_Op(bpy.types.Operator):
         except Exception as error: self.report({'ERROR'}, f"Error occured while assembleing mesh\n{report(traceback.format_exc())}")
         
         return {'FINISHED'}
+
+class NextSim_OT_Op(bpy.types.Operator):
+    """ Moves to next similarity above threshold """
+
+    bl_idname = "mesh.next_sim"
+    bl_label = "Next"
+    
+    @classmethod
+    def poll(cls, context):
+        """ Indicates weather the operator should be enabled """
+        return True
+
+    def execute(self, context):
+        """Executes the segmentation"""
+        context.scene.sim_i += 1
+        return fetch_sim(self, context, context.scene.sim_i)
+        
+class PrevSim_OT_Op(bpy.types.Operator):
+    """ Moves to previous similarity above threshold """
+
+    bl_idname = "mesh.prev_sim"
+    bl_label = "Prev"
+    
+    @classmethod
+    def poll(cls, context):
+        """ Indicates weather the operator should be enabled """
+        return True
+
+    def execute(self, context):
+        """Executes the segmentation"""
+        context.scene.sim_i = max(0, context.scene.sim_i -1)
+        return fetch_sim(self, context, context.scene.sim_i)
     
 ### Helper Functions ##

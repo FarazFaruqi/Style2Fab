@@ -55,7 +55,7 @@ class Stylize_OT_Op(bpy.types.Operator):
             materials = response['materials']
             self.report({'INFO'}, f"Stylized mesh successfully!")
             
-            mesh_name = f"{obj.name}-stylized"
+            mesh_name = f"{obj.name}_stylized"
             new_mesh = bpy.data.meshes.new(mesh_name)
             new_mesh.from_pydata(vertices, [], faces)
   

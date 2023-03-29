@@ -64,6 +64,13 @@ class Similarity_PT_Panel(Panel):
                         layout.label(text=f"Similarity: {similarity.sim:.3f}")
                         break
 
+            layout.row().prop(context.scene, "t")
+            sim_row = layout.row()
+            sim_col = sim_row.column()
+            sim_col_2 = sim_row.column()
+            sim_col.operator("mesh.prev_sim", icon="TRIA_LEFT")
+            sim_col_2.operator("mesh.next_sim", icon = "TRIA_RIGHT")
+
         # segment_col_1.label(text="segment 1")
         # segment_col_2.label(text="segment 2")
         # segment_col_1.prop(context.scene, "assembly_segment_1")

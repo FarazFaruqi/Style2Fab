@@ -68,10 +68,11 @@ def fetch(self, context, i):
             self.report({'INFO'}, f"No more meshes inside directory {mesh_dir}")
             return {'FINISHED'}
 
-        for i in range(1000): 
-            try: remove_mesh(self, f"{mesh_prefix}_{i}")
+        for name in context.scene.loaded.split(","): 
+            try: remove_mesh(self, name)
             except: continue
 
+        context.scene.loaded = ""
         for i in range(len(meshIds)):
             meshId = meshIds[i]
             faces = faces_list[i]
@@ -79,7 +80,9 @@ def fetch(self, context, i):
             vertices = vertices_list[i]
             face_segments = face_segments_list[i]
 
-            mesh_name = f"{mesh_prefix}_{i}"
+            mesh_name = f"{meshId.split('/')[-1]}"
+            context.scene.loaded += f"{mesh_name}"
+            if i < len(meshId) - 1: context.scene.loaded += ","
             # Remove old mesh   
             remove_mesh(self, mesh_name)
             context.scene.face_count = len(faces)
@@ -108,6 +111,45 @@ def fetch(self, context, i):
         self.report({'ERROR'}, f"Error occured while fetching mesh\n{report(traceback.format_exc())}")
             
     return {'FINISHED'}
+
+def fetch_sim(self, context, i):
+    mesh_set = []
+    for obj in bpy.context.selected_objects:
+        for model in context.scene.models:
+            if obj.name.lower() == model.name.lower(): mesh_set.append(model.id)
+
+    try:
+        data = json.dumps({'meshSet': mesh_set, "t": context.scene.t, "i": i})
+
+        url = f"{domain}/assemble/fetchSimilarity"
+        response = requests.post(url = url, json = data).json()
+        similarity = response['similarity']
+
+        if similarity is None: return {"FINISHED"}
+
+        model_id, other_id, i, j, sim = similarity
+
+        found = 0
+        for model in context.scene.models:
+            if model.id.lower() == model_id.lower():
+                model.segment_enum = f"{i}" if found == 0 else f"{j}" 
+                found += 1
+            if found == 2: break
+        
+        context.scene.assembly_enums[0].model_enum = model_id.split("/")[-1].lower()
+        context.scene.assembly_enums[1].model_enum = other_id.split("/")[-1].lower()
+
+        context.scene.similarity.add()
+        context.scene.similarity[-1].i = int(i)
+        context.scene.similarity[-1].j = int(j)
+        context.scene.similarity[-1].sim = float(sim)
+        context.scene.similarity[-1].model_id = model_id.lower()
+        context.scene.similarity[-1].other_id = other_id.lower()
+
+        self.report({'INFO'}, f"[response] >> {response}")
+    except: self.report({'ERROR'}, f"Error occured while assembleing mesh\n{report(traceback.format_exc())}")
+
+    return {"FINISHED"}
 
 def assign_materials(self, mesh, k, face_segments, context, labels, model):
     """ Assigns a colored material for each found segment """
