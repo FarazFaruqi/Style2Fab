@@ -27,17 +27,16 @@ class Stylize_OT_Op(bpy.types.Operator):
         prompt = context.scene.prompt
         objs = [obj for obj in bpy.context.selected_objects]
         
-        n = 0
         faces = []
         vertices = []
         selection = []
         for obj in objs:
+            n = len(vertices)
             for i, vertex in enumerate(obj.data.vertices): 
                 vertices.append(vertex.co[:])
 
             for face in obj.data.polygons: 
                 faces.append([n + i for i in face.vertices])
-            n = len(vertices)
 
             mesh = bmesh.from_edit_mesh(obj.data)
             for i, vertex in enumerate(mesh.verts):
