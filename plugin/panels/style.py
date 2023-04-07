@@ -11,13 +11,11 @@ class Style_PT_Panel(Panel):
     bl_region_type = "UI"
     bl_space_type = "VIEW_3D"
     bl_label = "Stylize"
-    bl_category = "FA3DS"
+    bl_category = "Style2Fab"
 
     def draw(self, context):
         """ Draws out the ui panel """
         layout = self.layout
-
-        layout.operator("segment.select_func", icon = "PLUGIN")
 
         layout.label(text="Prompt")
         prompt_col = layout.column()

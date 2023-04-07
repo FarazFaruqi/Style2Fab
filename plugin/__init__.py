@@ -1,5 +1,5 @@
 bl_info = {
-    "name" : "fa3ds",
+    "name" : "Style2Fab",
     "author" : "Ahmed Katary",
     "description" : "",
     "blender" : (2, 80, 0),
@@ -92,17 +92,24 @@ classes = (
     DynamicEnum,
     Simalrity,
 
+    MeshSelection_PT_Panel,
     Segment_PT_Panel,
     Similarity_PT_Panel,
     Style_PT_Panel,
-    Edit_PT_Panel, 
-    MeshSelection_PT_Panel,
+    # Edit_PT_Panel, 
 )
 
 props = {
     'prompt': StringProperty(
         name = "", 
         default = 'A vase made of wood'
+    ),
+
+    'planter': EnumProperty(
+        name = "", 
+        items = [
+            ("planter", "planter", ""),
+        ],
     ),
 
     'loaded': StringProperty(
@@ -137,7 +144,8 @@ props = {
 
     'mesh_dir': StringProperty(
         name = "", 
-        default = "/home/ubuntu/fa3ds/user_study/models"
+        # default = "/home/ubuntu/fa3ds/user_study/models"
+        default = "/home/ubuntu/fa3ds/video"
     ),
 
     'face_count': IntProperty(

@@ -10,16 +10,12 @@ class Similarity_PT_Panel(Panel):
     """
     bl_region_type = "UI"
     bl_space_type = "VIEW_3D"
-    bl_label = "Similarity"
-    bl_category = "FA3DS"
+    bl_label = "Assembly"
+    bl_category = "Style2Fab"
 
     def draw(self, context):
         """ Draws out the ui panel """
         layout = self.layout
-
-        similarity_row = layout.row()
-        similarity_col = similarity_row.column()
-        similarity_col.operator("mesh.similarity", icon = "PLUGIN")
 
         assembly_enums = context.scene.assembly_enums
         if len(assembly_enums) == 2:
@@ -63,13 +59,22 @@ class Similarity_PT_Panel(Panel):
                     f"{i}" == selected_i and f"{j}" == selected_j:
                         layout.label(text=f"Similarity: {similarity.sim:.3f}")
                         break
+            
+            similarity_row = layout.row()
+            similarity_col = similarity_row.column()
+            similarity_col.operator("mesh.similarity", icon = "PLUGIN")
 
-            layout.row().prop(context.scene, "t")
+            # layout.row().prop(context.scene, "t")
             sim_row = layout.row()
             sim_col = sim_row.column()
             sim_col_2 = sim_row.column()
             sim_col.operator("mesh.prev_sim", icon="TRIA_LEFT")
             sim_col_2.operator("mesh.next_sim", icon = "TRIA_RIGHT")
+
+        else:
+            similarity_row = layout.row()
+            similarity_col = similarity_row.column()
+            similarity_col.operator("mesh.similarity", icon = "PLUGIN")
 
         # segment_col_1.label(text="segment 1")
         # segment_col_2.label(text="segment 2")

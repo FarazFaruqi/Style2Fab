@@ -62,7 +62,7 @@ class SelectFunc_OT_Op(bpy.types.Operator):
     """ Moves to previous segment """
 
     bl_idname = "segment.select_func"
-    bl_label = "Select all function"
+    bl_label = "Highlight Functional Segments"
     
     @classmethod
     def poll(cls, context):

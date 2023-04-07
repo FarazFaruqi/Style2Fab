@@ -10,7 +10,7 @@ class Next_OT_Op(bpy.types.Operator):
     """ Moves to next mesh """
 
     bl_idname = "mesh.next"
-    bl_label = "Next"
+    bl_label = "Load Mesh"
     
     @classmethod
     def poll(cls, context):
@@ -19,8 +19,9 @@ class Next_OT_Op(bpy.types.Operator):
 
     def execute(self, context):
         """ Executes the fetching of the next mesh """
-        i = 0 if context.scene.i == context.scene.num_meshes else context.scene.i + 1
-        i = context.scene.i + 1
+        # i = 0 if context.scene.i == context.scene.num_meshes else context.scene.i + 1
+        # i = context.scene.i + 1
+        i = 0
         if context.object is not None: bpy.ops.object.mode_set(mode='OBJECT')
         if "Loaded" not in context.scene.models: 
             model = context.scene.models.add()

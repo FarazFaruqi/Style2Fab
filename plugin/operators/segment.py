@@ -12,7 +12,7 @@ class Segment_OT_Op(bpy.types.Operator):
     """ Segment a mesh """
 
     bl_idname = "mesh.segment"
-    bl_label = "Segment mesh"
+    bl_label = "Process Mesh"
     
     @classmethod
     def poll(cls, context):

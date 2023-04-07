@@ -12,7 +12,7 @@ class Similarity_OT_Op(bpy.types.Operator):
     """ Similarity between mesh segments """
 
     bl_idname = "mesh.similarity"
-    bl_label = "Compute Similarity"
+    bl_label = "Similarity"
     
     @classmethod
     def poll(cls, context):

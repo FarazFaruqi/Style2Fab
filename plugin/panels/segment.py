@@ -11,7 +11,7 @@ class Segment_PT_Panel(Panel):
     bl_region_type = "UI"
     bl_space_type = "VIEW_3D"
     bl_label = "Segment"
-    bl_category = "FA3DS"
+    bl_category = "Style2Fab"
 
     def draw(self, context):
         """ Draws out the ui panel """
@@ -27,7 +27,7 @@ class Segment_PT_Panel(Panel):
             for model in context.scene.models:
                 if not model.segmented: continue
                 layout.label(text=f"{model.name.capitalize()}")
-                layout.label(text=f"no. segments: {len(model.segments)}")
+                layout.label(text=f"No. Segments: {len(model.segments)}")
                 
                 # selected segment index
                 j = 0
@@ -35,10 +35,11 @@ class Segment_PT_Panel(Panel):
                     segment = model.segments[i]
 
                     if segment.selected: j = i; break
-                layout.label(text=f"selected segment: {j}")
+                layout.label(text=f"Selected Segment: {j}")
                 if j >= 0 and j < len(model.segments): _draw_segment_cursor(layout, model.segments[j])
 
                 layout.operator("mesh.annotate", text="Save", icon="CHECKMARK")
+            layout.operator("segment.select_func", icon = "PLUGIN")
 
 ### Helper Functions ###
 def _draw_segment_cursor(layout, segment): 

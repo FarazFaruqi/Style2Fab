@@ -10,25 +10,35 @@ class MeshSelection_PT_Panel(Panel):
     """
     bl_region_type = "UI"
     bl_space_type = "VIEW_3D"
-    bl_label = "Mesh Selector"
-    bl_category = "FA3DS"
+    bl_label = "Style2Fab"
+    bl_category = "Style2Fab"
 
     def draw(self, context):
         """ Draws out the ui panel """
+        ###### Temp layout
         layout = self.layout
+        layout.label(text=f"Selected Model (Planter)")
+        model_col = layout.column()
+        model_row = model_col.row()
+        model_row.prop(context.scene, "planter")
 
-        layout.label(text=f"Mesh Directory ({context.scene.num_meshes})")
+        layout.operator("mesh.next", icon = "PLUGIN")
+        ###### 
 
-        mesh_dir_col = layout.column()
-        mesh_dir_row = mesh_dir_col.row()
-        mesh_dir_row.prop(context.scene, "mesh_dir")
+        # layout = self.layout
 
-        layout.label(text=f"Mesh {context.scene.i}")
-        layout.label(text=f"No. faces {context.scene.face_count}")
-        layout.label(text=f"No. vertices {context.scene.vertex_count}")
+        # layout.label(text=f"Mesh Directory ({context.scene.num_meshes})")
 
-        edit_row = layout.row()
-        edit_col = edit_row.column()
-        edit_col_2 = edit_row.column()
-        edit_col.operator("mesh.prev", icon="TRIA_LEFT")
-        edit_col_2.operator("mesh.next", icon = "TRIA_RIGHT")
+        # mesh_dir_col = layout.column()
+        # mesh_dir_row = mesh_dir_col.row()
+        # mesh_dir_row.prop(context.scene, "mesh_dir")
+
+        # layout.label(text=f"Mesh {context.scene.i}")
+        # layout.label(text=f"No. faces {context.scene.face_count}")
+        # layout.label(text=f"No. vertices {context.scene.vertex_count}")
+
+        # edit_row = layout.row()
+        # edit_col = edit_row.column()
+        # edit_col_2 = edit_row.column()
+        # edit_col.operator("mesh.prev", icon="TRIA_LEFT")
+        # edit_col_2.operator("mesh.next", icon = "TRIA_RIGHT")
