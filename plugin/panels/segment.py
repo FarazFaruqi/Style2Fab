@@ -33,7 +33,7 @@ class Segment_PT_Panel(Panel):
                 j = 0
                 for i in range(len(model.segments)):
                     segment = model.segments[i]
-
+ 
                     if segment.selected: j = i; break
                 layout.label(text=f"Selected Segment: {j}")
                 if j >= 0 and j < len(model.segments): _draw_segment_cursor(layout, model.segments[j])

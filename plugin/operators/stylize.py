@@ -45,7 +45,7 @@ class Stylize_OT_Op(bpy.types.Operator):
         url = f"{domain}/stylize/"
         self.report({'INFO'}, f"Stylizing {len(objs)} meshes with {len(faces)} faces and {len(vertices)} vertices ...")
         
-        data = json.dumps({'vertices': vertices, 'faces': faces, 'prompt': prompt, 'selection': selection, 'remesh': False})
+        data = json.dumps({'vertices': vertices, 'faces': faces, 'prompt': prompt, 'selection': selection, 'remesh': False, "index": context.scene.i})
         
         try:
             response = requests.post(url = url, json = data).json()

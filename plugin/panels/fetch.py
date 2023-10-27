@@ -17,12 +17,16 @@ class MeshSelection_PT_Panel(Panel):
         """ Draws out the ui panel """
         ###### Temp layout
         layout = self.layout
-        layout.label(text=f"Selected Model (Planter)")
-        model_col = layout.column()
-        model_row = model_col.row()
-        model_row.prop(context.scene, "planter")
+        layout.label(text=f"Selected Model")
+        # model_col = layout.column()
+        # model_row = model_col.row()
+        # model_row.prop(context.scene, "planter")
 
-        layout.operator("mesh.next", icon = "PLUGIN")
+        # layout.operator("mesh.next", icon = "PLUGIN")
+        layout.operator("load.cat", icon = "PLUGIN")
+        layout.operator("load.headphones", icon = "PLUGIN")
+        # layout.operator("load.planter", icon = "PLUGIN")
+        # layout.operator("load.vase", icon = "PLUGIN")
         ###### 
 
         # layout = self.layout
