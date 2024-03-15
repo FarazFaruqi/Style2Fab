@@ -19,6 +19,7 @@ from .panels.sim import Similar_PT_Panel
 from .panels.style import Something_PT_Panel
 from .panels.segment import Seg_PT_Panel
 from .panels.select import Select_PT_Panel
+from .panels.process import Process_PT_Panel
 
 ### Custom Properties ###
 from bpy.props import StringProperty, CollectionProperty, BoolProperty, IntProperty, EnumProperty, FloatProperty
@@ -31,10 +32,11 @@ classes = (
     Func_OT_Op,
     Style_OT_Op,
 
-    Select_PT_Panel,
-    Seg_PT_Panel,
-    Something_PT_Panel,
-    Similar_PT_Panel,
+    #Select_PT_Panel,
+    #Seg_PT_Panel,
+    #Something_PT_Panel,
+    #Similar_PT_Panel,
+    Process_PT_Panel,
 )
 
 props = {

@@ -15,6 +15,9 @@ from .panels.style import Style_PT_Panel
 from .panels.segment import Segment_PT_Panel
 from .panels.fetch import MeshSelection_PT_Panel
 from .panels.similarity import Similarity_PT_Panel
+from .panels.process import Process_PT_Panel
+from .panels.settings import Settings_PT_Panel
+from .panels.results import Results_PT_Panel
 
 from .operators.edit import Edit_OT_Op
 from .operators.delete import Delete_OT_Op
@@ -96,10 +99,13 @@ classes = (
     DynamicEnum,
     Simalrity,
 
-    MeshSelection_PT_Panel,
-    Segment_PT_Panel,
-    Similarity_PT_Panel,
+    #MeshSelection_PT_Panel,
+    #Segment_PT_Panel,
+    #Similarity_PT_Panel,
+    Process_PT_Panel,
+    Settings_PT_Panel,
     Style_PT_Panel,
+    Results_PT_Panel,
     # Edit_PT_Panel, 
 )
 
@@ -182,6 +188,39 @@ props = {
     'similarity': CollectionProperty(
         type = Simalrity
     ),
+
+    # new code for mechstyle starts here:
+
+    'process_dropdown': EnumProperty(
+        name = "Model Location", 
+        items = [
+            ("path/to/location/1", "path/to/location/1", ""),
+            ("path/to/location/2", "path/to/location/2", ""),
+            ("path/to/location/3", "path/to/location/3", ""),
+        ],
+    ),
+
+    'settings_materials_dropdown': EnumProperty(
+        name = "Material", 
+        items = [
+            ("PLA", "PLA", ""),
+            ("Unknown", "Unknown", ""),
+        ],
+    ),
+
+    'settings_slider': FloatProperty(
+        name="",
+        description="Control value using slider",
+        min=0.0, max=1.0,  # Slider range
+        default=0.5,  # Default value
+    ),
+
+    'results_slider': FloatProperty(
+        name="",
+        description="Control value using slider",
+        min=0.0, max=1.0,  # Slider range
+        default=0.5,  # Default value
+    )
 }
 
 def register():
