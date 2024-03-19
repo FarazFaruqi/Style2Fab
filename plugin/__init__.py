@@ -1,6 +1,6 @@
 bl_info = {
-    "name" : "Style2Fab",
-    "author" : "Ahmed Katary",
+    "name" : "Mechstyle",
+    "author" : "CSAIL HCIE",
     "description" : "",
     "blender" : (2, 80, 0),
     "version" : (0, 0, 1),
@@ -23,6 +23,9 @@ from .operators.edit import Edit_OT_Op
 from .operators.delete import Delete_OT_Op
 from .operators.segment import Segment_OT_Op
 from .operators.stylize import Stylize_OT_Op
+from .operators.mechstyle import Mechstyle_OT_Op
+from .operators.load import Load_OT_Op
+from .operators.send_to_backend import Send_OT_Op
 from .operators.annotate import Annotate_OT_Op
 from .operators.select_mesh import Prev_OT_Op, Next_OT_Op, Load_Planter, Load_Cat, Load_Headphones, Load_Vase
 from .operators.similarity import Similarity_OT_Op, PrevSim_OT_Op, NextSim_OT_Op
@@ -92,6 +95,9 @@ classes = (
     Annotate_OT_Op,
     Similarity_OT_Op,
     SelectFunc_OT_Op,
+    Mechstyle_OT_Op,
+    Load_OT_Op,
+    Send_OT_Op,
 
     Segments, 
     # SegmentEnum,
@@ -199,7 +205,7 @@ props = {
             ("path/to/location/3", "path/to/location/3", ""),
         ],
     ),
-
+    
     'settings_materials_dropdown': EnumProperty(
         name = "Material", 
         items = [
@@ -209,7 +215,7 @@ props = {
     ),
 
     'settings_slider': FloatProperty(
-        name="",
+        name="Stylization Control",
         description="Control value using slider",
         min=0.0, max=1.0,  # Slider range
         default=0.5,  # Default value

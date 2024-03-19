@@ -79,59 +79,75 @@ def _find_mesh(mesh_dir, i):
     labels_list = []
     meshes_found = []
     face_segments_list = []
-    for file in os.listdir(mesh_dir): 
-        mesh_path = f"{mesh_dir}/{file}"
-        # print(f"Checking {mesh_path} ...")
+    if os.path.isdir(mesh_dir):
+        for file in os.listdir(mesh_dir): 
+            mesh_path = f"{mesh_dir}/{file}"
+            # print(f"Checking {mesh_path} ...")
 
-        if os.path.isfile(mesh_path):
-            mesh_name, mesh_ext = os.path.splitext(mesh_path)
-            if mesh_ext != ".obj": continue
-            num_meshes += 1
-            # if meshes_found is not None: continue
+            if os.path.isfile(mesh_path):
+                mesh_name, mesh_ext = os.path.splitext(mesh_path)
+                if mesh_ext != ".obj": continue
+                num_meshes += 1
+                # if meshes_found is not None: continue
 
-            if i is None or i == 0: 
-                ms = pymeshlab.MeshSet()
-                ms.load_new_mesh(mesh_path)
-                mesh = ms.current_mesh()
-                print(f"Found mesh at {mesh_path}!")
+                if i is None or i == 0: 
+                    ms = pymeshlab.MeshSet()
+                    ms.load_new_mesh(mesh_path)
+                    mesh = ms.current_mesh()
+                    print(f"Found mesh at {mesh_path}!")
 
-                meshes.append(mesh)
-                labels_list.append(default_labels)
-                meshes_found.append(mesh_path)
-                face_segments_list.append(None)
-            if i is not None: i -= 1
+                    meshes.append(mesh)
+                    labels_list.append(default_labels)
+                    meshes_found.append(mesh_path)
+                    face_segments_list.append(None)
+                if i is not None: i -= 1
 
-        if os.path.isdir(mesh_path):
-            if i is None or i == 0:
-                if len([1 for comp_path in os.listdir(mesh_path) if os.path.isfile(f"{mesh_path}/{comp_path}")]) != 0:
-                    try:
-                        print(f"Searching {mesh_path} for {i}th mesh ...")
-                        num_meshes += 1
-                        # if len(meshes_found) > 0: continue
-                        mesh, face_segments = reconstruct_mesh(mesh_path)
-                        print(f"Found segmented mesh at {mesh_path}!")
-                        labels_path = f"{mesh_path}/labels_{len(set(face_segments))}.csv"
-                        labels = default_labels
-                        if os.path.isfile(labels_path): 
-                            labels_df = pd.read_csv(labels_path)
-                            labels = list(labels_df['label'])
+            if os.path.isdir(mesh_path):
+                if i is None or i == 0:
+                    if len([1 for comp_path in os.listdir(mesh_path) if os.path.isfile(f"{mesh_path}/{comp_path}")]) != 0:
+                        try:
+                            print(f"Searching {mesh_path} for {i}th mesh ...")
+                            num_meshes += 1
+                            # if len(meshes_found) > 0: continue
+                            mesh, face_segments = reconstruct_mesh(mesh_path)
+                            print(f"Found segmented mesh at {mesh_path}!")
+                            labels_path = f"{mesh_path}/labels_{len(set(face_segments))}.csv"
+                            labels = default_labels
+                            if os.path.isfile(labels_path): 
+                                labels_df = pd.read_csv(labels_path)
+                                labels = list(labels_df['label'])
+                            
+                            meshes.append(mesh)
+                            labels_list.append(labels)
+                            meshes_found.append(mesh_path)
+                            face_segments_list.append(face_segments)
+                        except Exception: print(report(f"failed on {mesh_path}\n{traceback.format_exc()}"))
+                    else:
+                        print(report(f"failed on {mesh_path}\n{traceback.format_exc()}"))
+                        j = len([1 for comp_path in os.listdir(mesh_path) if os.path.isdir(f"{mesh_path}/{comp_path}")]) - 1
                         
-                        meshes.append(mesh)
-                        labels_list.append(labels)
-                        meshes_found.append(mesh_path)
-                        face_segments_list.append(face_segments)
-                    except Exception: print(report(f"failed on {mesh_path}\n{traceback.format_exc()}"))
-                else:
-                    print(report(f"failed on {mesh_path}\n{traceback.format_exc()}"))
-                    j = len([1 for comp_path in os.listdir(mesh_path) if os.path.isdir(f"{mesh_path}/{comp_path}")]) - 1
-                    
-                    print(f"Searching for {j} meshes inside {mesh_path}")
-                    child_meshes, child_meshes_found, child_face_segments, child_labels, _ = _find_mesh(mesh_path, None)
+                        print(f"Searching for {j} meshes inside {mesh_path}")
+                        child_meshes, child_meshes_found, child_face_segments, child_labels, _ = _find_mesh(mesh_path, None)
 
-                    meshes += child_meshes
-                    labels_list += child_labels
-                    meshes_found += child_meshes_found
-                    face_segments_list += child_face_segments
-            if i is not None: i -= 1
+                        meshes += child_meshes
+                        labels_list += child_labels
+                        meshes_found += child_meshes_found
+                        face_segments_list += child_face_segments
+                if i is not None: i -= 1
+    elif os.path.isfile(mesh_dir) and os.path.splitext(mesh_dir)[1] == '.obj':
+        # Handle the case where mesh_dir is a direct path to an .obj file
+        if i is None or i == 0: 
+            ms = pymeshlab.MeshSet()
+            ms.load_new_mesh(mesh_dir)
+            mesh = ms.current_mesh()
+            print(f"Found mesh at {mesh_dir}!")
+
+            meshes.append(mesh)
+            labels_list.append(default_labels)
+            meshes_found.append(mesh_dir)
+            face_segments_list.append(None)
+            num_meshes = 1  # Since it's a specific file, there's only one mesh to consider
+    else:
+        print(f"Path provided is neither a directory nor an .obj file: {mesh_dir}")
     
     return meshes, meshes_found, face_segments_list, labels_list, num_meshes

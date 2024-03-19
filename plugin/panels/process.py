@@ -4,13 +4,13 @@ from bpy.props import BoolProperty
 
 ### Global Constants ###
 
-class Edit_PT_Panel(Panel):
+class Process_PT_Panel(Panel):
     """
     AF() = a panel for Edit
     """
     bl_region_type = "UI"
     bl_space_type = "VIEW_3D"
-    bl_label = "Edit"
+    bl_label = "Process"
     bl_category = "Mechstyle"
 
     def draw(self, context):
@@ -18,8 +18,12 @@ class Edit_PT_Panel(Panel):
         layout = self.layout
         edit_col = layout.column()
         edit_row = edit_col.row()
-        edit_row.prop(context.scene, "mode")
+        edit_row.prop(context.scene, "process_dropdown")
 
-        edit_row = layout.row()
-        edit_col = edit_row.column()
-        edit_col.operator("mesh.edit", icon = "PLUGIN")
+        load_row = layout.row()
+        load_col = load_row.column()
+        load_col.operator("mesh.load", icon = "PLUGIN")
+
+        load_row = layout.row()
+        load_col = load_row.column()
+        load_col.operator("mesh.send_to_backend", icon = "PLUGIN")
