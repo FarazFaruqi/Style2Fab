@@ -11,7 +11,7 @@ class Style_PT_Panel(Panel):
     bl_region_type = "UI"
     bl_space_type = "VIEW_3D"
     bl_label = "Stylize"
-    bl_category = "Style2Fab"
+    bl_category = "Mechstyle"
 
     def draw(self, context):
         """ Draws out the ui panel """
@@ -22,6 +22,3 @@ class Style_PT_Panel(Panel):
         prompt_row = prompt_col.row()
         prompt_row.prop(context.scene, "prompt")
 
-        stylize_row = layout.row()
-        stylize_col = stylize_row.column()
-        stylize_col.operator("mesh.stylize", icon = "PLUGIN")

@@ -15,7 +15,7 @@ class Stylize_OT_Op(bpy.types.Operator):
     
     @classmethod
     def poll(cls, context):
-        """ Indicates weather the operator should be enabled """
+        """ Indicates whether the operator should be enabled """
         obj = context.object
         if obj is not None and obj.mode == "EDIT": return True
         print("\033[32m[Error] >> Failed to stylize model because object is not in edit mode\033[0m")
@@ -145,5 +145,3 @@ def _assign_materials(mesh, colors):
             mesh.data.materials.append(material)
 
         mesh.data.polygons[i].material_index = taken[tuple(color)]
-    
-        

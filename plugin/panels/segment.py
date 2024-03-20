@@ -11,7 +11,7 @@ class Segment_PT_Panel(Panel):
     bl_region_type = "UI"
     bl_space_type = "VIEW_3D"
     bl_label = "Segment"
-    bl_category = "Style2Fab"
+    bl_category = "Mechstyle"
 
     def draw(self, context):
         """ Draws out the ui panel """
