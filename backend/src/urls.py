@@ -21,7 +21,9 @@ urlpatterns = [
     path('edit/', include('edit.urls')),
     path('fetch/', include('fetch.urls')),
     path('segment/', include('segment.urls')),
-    path('stylize/', include('stylize.urls')),
+    #path('stylize/', include('stylize.urls')),
+    path('mechstyle/', include('mechstyle.urls')),
     path('assemble/', include('assemble.urls')),
     path('classify/', include('classify.urls')),
+    path('save_model/', include('save_model.urls')),
 ]
