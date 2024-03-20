@@ -2,7 +2,7 @@ import bpy
 import json
 import bmesh
 import requests 
-from .utils import fetch, report
+from .utils import fetch, report, domain, traceback
 
 class Mechstyle_OT_Op(bpy.types.Operator):
     bl_idname = "mesh.mechstyle"

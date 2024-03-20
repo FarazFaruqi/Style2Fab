@@ -6,6 +6,10 @@ import traceback
 from .utils import report, domain, fetch
 
 class Send_OT_Op(bpy.types.Operator):
+    '''
+        Send current model to be saved in server
+    '''
+    
     bl_idname = "mesh.send_to_backend"
     bl_label = "Save Current Model in Backend"
 
@@ -21,7 +25,7 @@ class Send_OT_Op(bpy.types.Operator):
     def execute(self, context):
         """ Executes the fetching of the selected mesh to backend """
         objs = [obj for obj in bpy.context.selected_objects]
-        
+
         faces = []
         vertices = []
         selection = []
@@ -39,4 +43,12 @@ class Send_OT_Op(bpy.types.Operator):
 
         url = f"{domain}/save_model/"
         
-        data = json.dumps({'vertices': vertices, 'faces': faces, 'prompt': prompt, 'selection': selection, 'remesh': False, "index": context.scene.i, "model": "r"})
+        #data = json.dumps({'vertices': vertices, 'faces': faces, 'prompt': prompt, 'selection': selection, 'remesh': False, "index": context.scene.i, "model": "r"})
+        data = json.dumps({'vertices': vertices, 'faces': faces})
+
+        try:
+            response = requests.post(url = url, json = data).json()
+        except Exception as error: 
+            self.report({'WARNING'}, f"Error occurred while saving mesh\n{report(traceback.format_exc())}")
+
+        return {'FINISHED'}
