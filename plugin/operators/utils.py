@@ -40,8 +40,8 @@ def add_mesh(self, mesh_name, vertices, faces):
     return new_object
 
 def fetch(self, context, i):
-    #mesh_dir = context.scene.mesh_dir
-    mesh_dir = "/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/bag_clip.obj"
+    mesh_dir = context.scene.process_dropdown
+    print("Selected mesh directory:", mesh_dir)
 
     mesh_prefix = "Loaded"
     url = f"{domain}/fetch/"

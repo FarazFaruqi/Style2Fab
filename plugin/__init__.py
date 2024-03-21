@@ -200,9 +200,9 @@ props = {
     'process_dropdown': EnumProperty(
         name = "Model Location", 
         items = [
-            ("path/to/location/1", "path/to/location/1", ""),
-            ("path/to/location/2", "path/to/location/2", ""),
-            ("path/to/location/3", "path/to/location/3", ""),
+            ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/bag_clip.obj", "/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/bag_clip.obj", ""),
+            ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/whistle.obj", "/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/whistle.obj", ""),
+            ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/phone_stand.obj", "/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/phone_stand.obj", ""),
         ],
     ),
     
