@@ -205,6 +205,12 @@ props = {
             ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/phone_stand.obj", "/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/phone_stand.obj", ""),
         ],
     ),
+
+    'model_name': StringProperty(
+        name = "Model Name (for export folder and model export)", 
+        default = 'bag_clip'
+    ),
+
     
     'settings_materials_dropdown': EnumProperty(
         name = "Material", 

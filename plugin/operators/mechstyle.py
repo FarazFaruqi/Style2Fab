@@ -18,6 +18,7 @@ class Mechstyle_OT_Op(bpy.types.Operator):
         url = f"{domain}/mechstyle/"
 
         mesh_dir = context.scene.process_dropdown
+        model_name = context.scene.model_name
 
         # pass in model selection to mask out weights
         objs = [obj for obj in bpy.context.selected_objects]
@@ -42,7 +43,7 @@ class Mechstyle_OT_Op(bpy.types.Operator):
         print(selection)
 
         try:
-            response = requests.post(url=url, json={"prompt": prompt, "selection": selection, "vertices": vertices, "mesh_dir": mesh_dir}).json()
+            response = requests.post(url=url, json={"prompt": prompt, "selection": selection, "vertices": vertices, "mesh_dir": mesh_dir, "name": model_name}).json()
         except Exception as error:
             self.report({'WARNING'}, f"Error occurred while stylizing mesh\n{report(traceback.format_exc())}")
 
