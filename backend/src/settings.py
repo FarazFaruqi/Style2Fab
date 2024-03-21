@@ -41,9 +41,10 @@ INSTALLED_APPS = [
     'classify',
     'assemble',
     'segment',
-    'stylize',
+    #'stylize',
     'fetch',
     'edit',
+    'save_model'
 ]
 
 MIDDLEWARE = [
