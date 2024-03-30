@@ -22,3 +22,4 @@ class Style_PT_Panel(Panel):
         prompt_row = prompt_col.row()
         prompt_row.prop(context.scene, "prompt")
 
+        prompt_col.operator("mesh.mechstyle", icon = "PLUGIN")

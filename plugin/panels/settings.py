@@ -21,8 +21,5 @@ class Settings_PT_Panel(Panel):
         edit_col.row().prop(context.scene, "settings_materials_dropdown")
 
         edit_col.separator()
-        edit_col.row().prop(context.scene, "settings_slider")
-
-        label_row = edit_col.row()
-        label_row.label(text="0: Freeze weak segments")
-        label_row.label(text="1: Freely stylize")
+        #edit_col.row().prop(context.scene, "settings_slider")
+        edit_col.row().prop(context.scene, "settings_radio", expand=True)

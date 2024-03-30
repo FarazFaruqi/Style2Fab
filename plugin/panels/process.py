@@ -28,6 +28,6 @@ class Process_PT_Panel(Panel):
         load_col = load_row.column()
         load_col.operator("mesh.load", icon = "PLUGIN")
 
-        load_row = layout.row()
-        load_col = load_row.column()
-        load_col.operator("mesh.send_to_backend", icon = "PLUGIN")
+        #load_row = layout.row()
+        #load_col = load_row.column()
+        #load_col.operator("mesh.send_to_backend", icon = "PLUGIN")

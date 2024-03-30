@@ -24,7 +24,7 @@ from .operators.delete import Delete_OT_Op
 from .operators.segment import Segment_OT_Op
 from .operators.stylize import Stylize_OT_Op
 from .operators.mechstyle import Mechstyle_OT_Op
-from .operators.load import Load_OT_Op
+from .operators.load import Load_OT_Op, Load_Final_OT_Op
 from .operators.send_to_backend import Send_OT_Op
 from .operators.annotate import Annotate_OT_Op
 from .operators.select_mesh import Prev_OT_Op, Next_OT_Op, Load_Planter, Load_Cat, Load_Headphones, Load_Vase
@@ -97,6 +97,7 @@ classes = (
     SelectFunc_OT_Op,
     Mechstyle_OT_Op,
     Load_OT_Op,
+    Load_Final_OT_Op,
     Send_OT_Op,
 
     Segments, 
@@ -198,11 +199,12 @@ props = {
     # new code for mechstyle starts here:
 
     'process_dropdown': EnumProperty(
-        name = "Model Location", 
+        name = "Model Name", 
         items = [
-            ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/bag_clip.obj", "/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/bag_clip.obj", ""),
-            ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/whistle.obj", "/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/whistle.obj", ""),
-            ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/phone_stand.obj", "/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/phone_stand.obj", ""),
+            ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/bag_clip.obj", "bag_clip", ""),
+            ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/whistle.obj", "whistle", ""),
+            ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/phone_stand.obj", "phone_stand", ""),
+            ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/u_hook_3_2.obj", "hook", ""),
         ],
     ),
 
@@ -232,6 +234,36 @@ props = {
         description="Control value using slider",
         min=0.0, max=1.0,  # Slider range
         default=0.5,  # Default value
+    ),
+
+    'settings_radio': EnumProperty(
+        name="Stylization Control",
+        description="Control type of stylization using radio buttons",
+        items=[
+            ("Freestyle", "Freestyle", "No Simulation"),
+            ("Mechstyle", "Mechstyle", "Simulation Control (Default)")
+        ],
+        default="Mechstyle"
+    ),
+
+    'results_radio': EnumProperty(
+        name="View Model",
+        description="",
+        items=[
+            ("Stylized", "Stylized Model", ""),
+            ("FEA", "FEA Result", "")
+        ],
+        default="Stylized"
+    ),
+
+    "stylization_loss": StringProperty(
+        name="Stylization Loss",
+        default=""
+    ),
+
+    "structural_loss": StringProperty(
+        name="Structural Loss",
+        default=""
     )
 }
 

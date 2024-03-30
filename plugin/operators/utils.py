@@ -25,34 +25,69 @@ def remove_mesh(self, mesh_name):
     bpy.ops.object.delete()
     self.report({'INFO'}, f"Removed old mesh {mesh_name} ...")
 
-def add_mesh(self, mesh_name, vertices, faces):
+def add_mesh(self, mesh_name, vertices, faces, colors, vertex_normals=None):
     new_mesh = bpy.data.meshes.new(mesh_name)
     new_mesh.from_pydata(vertices, [], faces)
     new_mesh.update()
 
     new_object = bpy.data.objects.new(mesh_name, new_mesh)
     bpy.context.scene.collection.objects.link(new_object)
+
+    # Create a vertex color map
+    color_layer = new_mesh.vertex_colors.new(name="Col")
+    
+    # Fill the vertex color map
+    for poly in new_mesh.polygons:
+        for loop_index, vertex_index in zip(poly.loop_indices, poly.vertices):
+            loop_vert_color = color_layer.data[loop_index]
+            loop_vert_color.color = (*colors[vertex_index], 1.0)  # add alpha
+
     bpy.context.view_layer.objects.active = new_object
     bpy.ops.object.select_all(action='DESELECT')
     bpy.data.objects[mesh_name].select_set(True)
 
+    # Create a material that uses the vertex colors
+    material = bpy.data.materials.new(name=f"{mesh_name}_Material")
+    material.use_nodes = True
+    bsdf = material.node_tree.nodes.get('Principled BSDF')
+    assert bsdf is not None, "Failed to find Principled BSDF node"
+
+    # Create an attribute node to fetch the vertex colors and connect it
+    attr_node = material.node_tree.nodes.new('ShaderNodeAttribute')
+    attr_node.attribute_name = 'Col'  # The name of your vertex color layer
+    material.node_tree.links.new(attr_node.outputs['Color'], bsdf.inputs['Base Color'])
+
+    # Assign the material to the object
+    if len(new_object.data.materials) == 0:
+        new_object.data.materials.append(material)
+    else:
+        new_object.data.materials[0] = material
+
     self.report({'INFO'}, f"Added new mesh {mesh_name} ...")
     return new_object
 
-def fetch(self, context, i):
-    mesh_dir = context.scene.process_dropdown
+
+def fetch(self, mesh_dir, context, i, color_type=None):
+    # Fetching 'in progress' models leads to broken results, however 'modelname_current.obj' imports correctly
+    if mesh_dir == "dropdown":
+        mesh_dir = context.scene.process_dropdown
+    #mesh_dir = "/home/ubuntu/MechStyle-code/Models/Blender_Export/hook_2/hook_2_current.obj"
+    #mesh_dir = "/home/ubuntu/MechStyle-code/Models/Blender_Export/bag_clip/bag_clip_199.obj"
+    #mesh_dir = "/home/ubuntu/MechStyle-code/Models/Examples/Bag_Clip_Test_No_stylization_9/bag_clip_current.obj"
     print("Selected mesh directory:", mesh_dir)
 
     mesh_prefix = "Loaded"
     url = f"{domain}/fetch/"
 
-    data = json.dumps({'i': i, 'mesh_dir': mesh_dir})
+    data = json.dumps({'i': i, 'mesh_dir': mesh_dir, 'color_type': color_type})
     try:
         response = requests.post(url = url, json = data).json()
         
         failed = response['failed']
+        colors = response['colors']
         meshIds = response['meshIds']
         faces_list = response['faces']
+        vertex_normals_list = response['vertex_normals']
         labels_list = response['labels']
         num_meshes = response['numMeshes']
         vertices_list = response['vertices']
@@ -77,9 +112,11 @@ def fetch(self, context, i):
         for i in range(len(meshIds)):
             meshId = meshIds[i]
             faces = faces_list[i]
+            vertex_normals = vertex_normals_list[i]
             labels = labels_list[i]
             vertices = vertices_list[i]
             face_segments = face_segments_list[i]
+            colors = colors[i]
 
             mesh_name = f"{meshId.split('/')[-1]}"
             context.scene.loaded += f"{mesh_name}"
@@ -90,23 +127,27 @@ def fetch(self, context, i):
             context.scene.vertex_count = len(vertices)
 
             # Add new mesh
-            new_object = add_mesh(self, mesh_name, vertices, faces)
+            new_object = add_mesh(self, mesh_name, vertices, faces, colors, vertex_normals)
 
-            if face_segments is not None:
-                k = len(set(face_segments))
+            model = context.scene.models.add()
+            model.name = mesh_name.lower()
+            model.id = meshId
 
-                for stored_models in context.scene.models: 
-                    if stored_models.name == mesh_name.lower(): 
-                        model = stored_models
-                        model.id = meshId
-                        break
-                else: 
-                    model = context.scene.models.add()
-                    model.name = mesh_name.lower()
-                    model.id = meshId
-                model.segmented = True
-                assign_materials(self, new_object, k, face_segments, context, labels, model)
-                self.report({'INFO'}, f"[labels] >> {len(labels)} == {k} {labels}")
+            #if face_segments is not None:
+            #    k = len(set(face_segments))
+
+            #    for stored_models in context.scene.models: 
+            #        if stored_models.name == mesh_name.lower(): 
+            #            model = stored_models
+            #            model.id = meshId
+            #            break
+            #    else: 
+            #        model = context.scene.models.add()
+            #        model.name = mesh_name.lower()
+            #        model.id = meshId
+            #    model.segmented = True
+            #    assign_materials(self, new_object, k, face_segments, context, labels, model)
+            #    self.report({'INFO'}, f"[labels] >> {len(labels)} == {k} {labels}")
 
     except Exception as error: 
         self.report({'ERROR'}, f"Error occured while fetching mesh\n{report(traceback.format_exc())}")

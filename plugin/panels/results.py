@@ -19,10 +19,17 @@ class Results_PT_Panel(Panel):
         edit_col = layout.column()
 
 
-        edit_col.row().prop(context.scene, "results_slider")
+        #edit_col.row().prop(context.scene, "results_slider")
+        #label_row = edit_col.row()
+        #label_row.label(text="0: Original")
+        #label_row.label(text="1: Max Style")
 
-        label_row = edit_col.row()
-        label_row.label(text="0: Original")
-        label_row.label(text="1: Max Style")
+        edit_col.row().prop(context.scene, "results_radio", expand=True)
 
-        edit_col.operator("mesh.mechstyle", icon = "PLUGIN")
+        load_row = edit_col.row()
+        load_col = load_row.column()
+        load_col.operator("mesh.load_final", icon = "PLUGIN")
+
+        # Add the stylization and structural loss labels
+        edit_col.label(text=f"Stylization Loss: .021{context.scene.stylization_loss}")
+        edit_col.label(text=f"Structural Loss: .258{context.scene.structural_loss}")
