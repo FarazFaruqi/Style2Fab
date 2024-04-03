@@ -36,32 +36,35 @@ def add_mesh(self, mesh_name, vertices, faces, colors, vertex_normals=None):
     # Create a vertex color map
     color_layer = new_mesh.vertex_colors.new(name="Col")
     
-    # Fill the vertex color map
-    for poly in new_mesh.polygons:
-        for loop_index, vertex_index in zip(poly.loop_indices, poly.vertices):
-            loop_vert_color = color_layer.data[loop_index]
-            loop_vert_color.color = (*colors[vertex_index], 1.0)  # add alpha
-
     bpy.context.view_layer.objects.active = new_object
     bpy.ops.object.select_all(action='DESELECT')
     bpy.data.objects[mesh_name].select_set(True)
 
-    # Create a material that uses the vertex colors
-    material = bpy.data.materials.new(name=f"{mesh_name}_Material")
-    material.use_nodes = True
-    bsdf = material.node_tree.nodes.get('Principled BSDF')
-    assert bsdf is not None, "Failed to find Principled BSDF node"
+    if colors != None:
+        # Fill the vertex color map
+        for poly in new_mesh.polygons:
+            for loop_index, vertex_index in zip(poly.loop_indices, poly.vertices):
+                loop_vert_color = color_layer.data[loop_index]
+                loop_vert_color.color = (*colors[vertex_index], 1.0)  # add alpha
 
-    # Create an attribute node to fetch the vertex colors and connect it
-    attr_node = material.node_tree.nodes.new('ShaderNodeAttribute')
-    attr_node.attribute_name = 'Col'  # The name of your vertex color layer
-    material.node_tree.links.new(attr_node.outputs['Color'], bsdf.inputs['Base Color'])
 
-    # Assign the material to the object
-    if len(new_object.data.materials) == 0:
-        new_object.data.materials.append(material)
-    else:
-        new_object.data.materials[0] = material
+
+        # Create a material that uses the vertex colors
+        material = bpy.data.materials.new(name=f"{mesh_name}_Material")
+        material.use_nodes = True
+        bsdf = material.node_tree.nodes.get('Principled BSDF')
+        assert bsdf is not None, "Failed to find Principled BSDF node"
+
+        # Create an attribute node to fetch the vertex colors and connect it
+        attr_node = material.node_tree.nodes.new('ShaderNodeAttribute')
+        attr_node.attribute_name = 'Col'  # The name of your vertex color layer
+        material.node_tree.links.new(attr_node.outputs['Color'], bsdf.inputs['Base Color'])
+
+        # Assign the material to the object
+        if len(new_object.data.materials) == 0:
+            new_object.data.materials.append(material)
+        else:
+            new_object.data.materials[0] = material
 
     self.report({'INFO'}, f"Added new mesh {mesh_name} ...")
     return new_object
@@ -116,7 +119,8 @@ def fetch(self, mesh_dir, context, i, color_type=None):
             labels = labels_list[i]
             vertices = vertices_list[i]
             face_segments = face_segments_list[i]
-            colors = colors[i]
+            if colors != None:
+                colors = colors[i]
 
             mesh_name = f"{meshId.split('/')[-1]}"
             context.scene.loaded += f"{mesh_name}"

@@ -20,6 +20,6 @@ class Settings_PT_Panel(Panel):
 
         edit_col.row().prop(context.scene, "settings_materials_dropdown")
 
-        edit_col.separator()
+        #edit_col.separator()
         #edit_col.row().prop(context.scene, "settings_slider")
-        edit_col.row().prop(context.scene, "settings_radio", expand=True)
+        #edit_col.row().prop(context.scene, "settings_radio", expand=True)

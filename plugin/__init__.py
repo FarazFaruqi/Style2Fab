@@ -24,7 +24,7 @@ from .operators.delete import Delete_OT_Op
 from .operators.segment import Segment_OT_Op
 from .operators.stylize import Stylize_OT_Op
 from .operators.mechstyle import Mechstyle_OT_Op
-from .operators.load import Load_OT_Op, Load_Final_OT_Op
+from .operators.load import Load_OT_Op, Load_Final_OT_Op, Load_Paper_OT_Op
 from .operators.send_to_backend import Send_OT_Op
 from .operators.annotate import Annotate_OT_Op
 from .operators.select_mesh import Prev_OT_Op, Next_OT_Op, Load_Planter, Load_Cat, Load_Headphones, Load_Vase
@@ -98,6 +98,7 @@ classes = (
     Mechstyle_OT_Op,
     Load_OT_Op,
     Load_Final_OT_Op,
+    Load_Paper_OT_Op,
     Send_OT_Op,
 
     Segments, 
@@ -204,7 +205,7 @@ props = {
             ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/bag_clip.obj", "bag_clip", ""),
             ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/whistle.obj", "whistle", ""),
             ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/phone_stand.obj", "phone_stand", ""),
-            ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/u_hook_3_2.obj", "hook", ""),
+            ("/home/ubuntu/MechStyle-code/Models/Thingiverse_Models/Processed/hook_model_0.obj", "hook", ""),
         ],
     ),
 
@@ -217,8 +218,11 @@ props = {
     'settings_materials_dropdown': EnumProperty(
         name = "Material", 
         items = [
+            ("None", "None", ""),
+            ("ABS", "ABS", ""),
+            ("PETG", "PETG", ""),
             ("PLA", "PLA", ""),
-            ("Unknown", "Unknown", ""),
+            ("TPU", "TPU", "")
         ],
     ),
 

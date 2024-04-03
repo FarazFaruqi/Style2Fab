@@ -28,8 +28,9 @@ class Results_PT_Panel(Panel):
 
         load_row = edit_col.row()
         load_col = load_row.column()
-        load_col.operator("mesh.load_final", icon = "PLUGIN")
+        #load_col.operator("mesh.load_final", icon = "PLUGIN")
+        load_col.operator("mesh.load_paper", icon = "PLUGIN")
 
         # Add the stylization and structural loss labels
-        edit_col.label(text=f"Stylization Loss: .021{context.scene.stylization_loss}")
-        edit_col.label(text=f"Structural Loss: .258{context.scene.structural_loss}")
+        edit_col.label(text=f"Stylization: {context.scene.stylization_loss}")
+        edit_col.label(text=f"Max Structural Stress Change: {context.scene.structural_loss}")

@@ -54,8 +54,42 @@ class Load_Final_OT_Op(bpy.types.Operator):
             color_type = "colors"
         elif context.scene.results_radio == "FEA":
             color_type = "stress_values"
-        # else shouldn't ever be called, but just in case something goes wrong it will fail silently 
         else:
+            # else shouldn't ever be called, but just in case something goes wrong it will fail silently 
             color_type = None
 
         return fetch(self, model_dir, context, i, color_type=color_type)
+    
+class Load_Paper_OT_Op(bpy.types.Operator):
+    bl_idname = "mesh.load_paper"
+    bl_label = "Load Model"
+    bl_description = "Loads stylized model with texture or stress values"
+
+    @classmethod
+    def poll(cls, context):
+        """ Indicates weather the operator should be enabled """
+        return True
+
+    def execute(self, context):
+        """ Executes the fetching of the next mesh """
+        i = 3
+        if context.object is not None: bpy.ops.object.mode_set(mode='OBJECT')
+        if "Loaded" not in context.scene.models: 
+            model = context.scene.models.add()
+            model.name = "Loaded"
+            
+        # Use the value from the property 'model_name' in the scene
+        model_name = context.scene.model_name
+        model_dir = "/home/ubuntu/MechStyle-code/Models/Hook_Paper_Example/hook_mechstyle.obj"
+
+
+        if context.scene.results_radio == "Stylized":
+            color_type = "colors"
+        elif context.scene.results_radio == "FEA":
+            color_type = "stress_values"
+        else:
+            # else shouldn't ever be called, but just in case something goes wrong it will fail silently 
+            color_type = None
+
+        return fetch(self, model_dir, context, i, color_type=color_type)
+    

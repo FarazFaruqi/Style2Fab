@@ -20,9 +20,9 @@ class Process_PT_Panel(Panel):
         edit_row = edit_col.row()
         edit_row.prop(context.scene, "process_dropdown")
 
-        edit_col = layout.column()
-        edit_row = edit_col.row()
-        edit_row.prop(context.scene, "model_name")
+        #edit_col = layout.column()
+        #edit_row = edit_col.row()
+        #edit_row.prop(context.scene, "model_name")
 
         load_row = layout.row()
         load_col = load_row.column()
